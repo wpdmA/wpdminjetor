@@ -1,9 +1,9 @@
-const ver = "V3.0.8";
+const ver = "V3.0.9";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
-    initialDelay: 3000,
-    subsequentDelays: [300, 1500, 500, 2000]
+    initialDelay: 1000,
+    subsequentDelays: [270, 1070, 407, 1007]
 };
 
 // Configurações das funcionalidades
@@ -153,7 +153,7 @@ function spoofQuestion() {
 // Função para responder automaticamente às questões
 function autoAnswer() {
     (async () => {
-        const baseClasses = ["_s6zfc1u", "_ssxvf9l", "_4i5p5ae", "_1r8cd7xe", "_1yok8f4"];
+        const baseClasses = ["_ssxvf9l", "_s6zfc1u", "_4i5p5ae", "_1r8cd7xe", "_1yok8f4"];
 
         while (true) {
             if (window.features.autoAnswer && window.features.questionSpoof) {
