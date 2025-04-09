@@ -1,9 +1,9 @@
-const ver = "V777";
+const ver = "777";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
-    initialDelay: 1000,
-    subsequentDelays: [270, 1070, 407, 1007]
+    initialDelay: 3000,
+    subsequentDelays: [300, 1500, 500, 2000]
 };
 
 // Configurações das funcionalidades
