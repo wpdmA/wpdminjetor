@@ -1,4 +1,4 @@
-const ver = "V3.0.188";
+const ver = "V3.1.0";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
@@ -38,7 +38,6 @@ function sendToast(text, duration = 5000, gravity = 'bottom', imageUrl = null, f
             borderRadius: '5px',
             display: 'flex',
             alignItems: 'center'
-            .nofocus:focus {outline: none;}
         }
     });
 
@@ -59,6 +58,7 @@ function findAndClickByClass(className) {
     const element = document.getElementsByClassName(className)[0];
     if (element) {
         element.click();
+        element.blur();
         if (element.textContent === 'Mostrar resumo') {
             sendToast("Concluido - WeLL ⛄️", 3000);
             playAudio('https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/4x5g14gj.wav');
@@ -198,7 +198,6 @@ async function showSplashScreen() {
     `;
     splashScreen.innerHTML = '<span style="color:white;">WeLL </span><span style="color:#00ff00;">Bypass</span>';
     document.body.appendChild(splashScreen);
-    document.querySelectorAll('input, button, a, textarea, select').forEach(el => {el.setAttribute('tabindex', '-1');});
     setTimeout(() => splashScreen.style.opacity = '1', 10);
 
     await delay(2000);
@@ -291,6 +290,9 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js').then(async () => {
     window.features.autoAnswer = true;
     spoofQuestion();
     autoAnswer();
+    document.addEventListener('focus', (event) => {
+    event.target.blur();
+    }, true);
     console.clear();
     // Exibe a tela de inicialização
     await showSplashScreen();
