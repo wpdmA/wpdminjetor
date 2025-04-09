@@ -8,7 +8,7 @@ const featureConfigs = {
 
 // Configurações das funcionalidades
 window.features = {
-    autoAnswer: false,
+    autoAnswer: true,
     questionSpoof: true
 };
 
@@ -153,7 +153,7 @@ function spoofQuestion() {
 // Função para responder automaticamente às questões
 function autoAnswer() {
     (async () => {
-        const baseClasses = ["_ssxvf9l", "_s6zfc1u", "_4i5p5ae", "_1r8cd7xe", "_1yok8f4"];
+        const baseClasses = ["_ssxvf9l", "_s6zfc1u", "_1r8cd7xe", "_4i5p5ae", "_1yok8f4"];
 
         while (true) {
             if (window.features.autoAnswer && window.features.questionSpoof) {
