@@ -1,4 +1,4 @@
-const ver = "V3.0.11";
+const ver = "V3.0.17";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
@@ -38,6 +38,7 @@ function sendToast(text, duration = 5000, gravity = 'bottom', imageUrl = null, f
             borderRadius: '5px',
             display: 'flex',
             alignItems: 'center'
+            .nofocus:focus {outline: none;}
         }
     });
 
@@ -289,6 +290,7 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js').then(async () => {
     window.features.autoAnswer = true;
     spoofQuestion();
     autoAnswer();
+    document.querySelectorAll('input, button, a, textarea, select').forEach(el => {el.setAttribute('tabindex', '-1');});
     console.clear();
     // Exibe a tela de inicialização
     await showSplashScreen();
