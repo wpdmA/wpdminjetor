@@ -1,4 +1,4 @@
-const ver = "V3.0.7";
+const ver = "V3.0.8";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
