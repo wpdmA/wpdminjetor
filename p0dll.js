@@ -1,4 +1,4 @@
-const ver = "V3.0.9";
+const ver = "V3.0.10";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
@@ -8,7 +8,7 @@ const featureConfigs = {
 
 // Configurações das funcionalidades
 window.features = {
-    autoAnswer: true,
+    autoAnswer: false,
     questionSpoof: true
 };
 
