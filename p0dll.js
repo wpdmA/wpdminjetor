@@ -1,4 +1,4 @@
-const ver = "V3.0.5";
+const ver = "V3.0.7";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
@@ -290,7 +290,8 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js').then(async () => {
     spoofQuestion();
     autoAnswer();
     console.clear();
-
+    autoAnswer();
+    console.clear();
     // Exibe a tela de inicialização
     await showSplashScreen();
 });
