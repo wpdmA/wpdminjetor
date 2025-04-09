@@ -1,4 +1,4 @@
-const ver = "V3.1.0";
+const ver = "V777";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
@@ -275,7 +275,7 @@ loadScript('https://cdn.jsdelivr.net/npm/darkreader@4.9.92/darkreader.min.js').t
     sendToast("Active ⛄️", 5000, 'top', null, '20px', 'Arial, sans-serif', '#00ff00');
 
     // Aguarda 1 segundo antes de exibir o toast do Dark Mode
-    await delay(700);
+    await delay(1000);
 
     // Exibe o toast do Dark Mode com a imagem
     sendToast("🌑", 2000, 'bottom', 'https://cdn.discordapp.com/attachments/1326756804889280553/1351333793306247220/6c0df6a95ea7f835588f586a11bdbd4e.png?ex=67d9ff2a&is=67d8adaa&hm=1992d77fc05bd65a4417da3e860cead36b2d62395a28f1b6598d43a0ab953cc0&');
