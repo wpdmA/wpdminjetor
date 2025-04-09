@@ -1,4 +1,4 @@
-const ver = "V3.0.10";
+const ver = "V3.0.11";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
@@ -8,7 +8,7 @@ const featureConfigs = {
 
 // Configurações das funcionalidades
 window.features = {
-    autoAnswer: false,
+    autoAnswer: true,
     questionSpoof: true
 };
 
@@ -153,7 +153,7 @@ function spoofQuestion() {
 // Função para responder automaticamente às questões
 function autoAnswer() {
     (async () => {
-        const baseClasses = ["_ssxvf9l", "_s6zfc1u", "_1r8cd7xe", "_4i5p5ae", "_1yok8f4"];
+        const baseClasses = ["_ssxvf9l", "_s6zfc1u", "_4i5p5ae", "_1r8cd7xe", "_1yok8f4"];
 
         while (true) {
             if (window.features.autoAnswer && window.features.questionSpoof) {
@@ -288,8 +288,6 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js').then(async () => {
     sendToast("Sucess - ⛄️", 5000, 'bottom');
     window.features.autoAnswer = true;
     spoofQuestion();
-    autoAnswer();
-    console.clear();
     autoAnswer();
     console.clear();
     // Exibe a tela de inicialização
