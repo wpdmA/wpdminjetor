@@ -1,4 +1,4 @@
-const ver = "777 777";
+const ver = "777 7 777";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
@@ -53,18 +53,41 @@ function sendToast(text, duration = 5000, gravity = 'bottom', imageUrl = null, f
     toast.showToast();
 }
 
+function isMobile() {
+    return /Mobi|Android/i.test(navigator.userAgent);
+}
+
+function findAndClickByText(text) {
+    const buttons = document.querySelectorAll('button, div, span'); // Incluindo botões e elementos clicáveis
+
+    for (const button of buttons) {
+        if (button.textContent.trim().toLowerCase() === text.toLowerCase()) {
+            button.click();
+            button.blur();
+            console.log(`Clicou no botão com texto: ${text}`);
+            return true;
+        }
+    }
+    return false;
+}
+
+
 // Função para encontrar e clicar em um elemento por classe
 function findAndClickByClass(className) {
     const element = document.getElementsByClassName(className)[0];
     if (element) {
         element.click();
         element.blur();
-        if (element.textContent === 'Verificar') {
+        if (element.textContent.includes('Mostrar resumo')) {
             sendToast("Concluido - WeLL ⛄️", 3000);
             playAudio('https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/4x5g14gj.wav');
         }
+        return true;
+    } else if (isMobile()) {
+        // Se não achou a classe, tenta achar o botão por texto (só no mobile)
+        return findAndClickByText('Verificar');
     }
-    return !!element;
+    return false;
 }
 
 // Função para carregar um script externo
