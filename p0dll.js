@@ -1,4 +1,4 @@
-const ver = "777";
+const ver = "777 777";
 
 // Configurações de atraso para as funcionalidades
 const featureConfigs = {
@@ -59,7 +59,7 @@ function findAndClickByClass(className) {
     if (element) {
         element.click();
         element.blur();
-        if (element.textContent === 'Mostrar resumo') {
+        if (element.textContent === 'Verificar') {
             sendToast("Concluido - WeLL ⛄️", 3000);
             playAudio('https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/4x5g14gj.wav');
         }
