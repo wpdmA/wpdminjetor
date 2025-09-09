@@ -1,4 +1,4 @@
-const ver = "78787",
+const ver = "7777",
     featureConfigs = { initialDelay: 3e3, subsequentDelays: [300, 1500, 500, 2e3] };
 
 window.features = { autoAnswer: !0, questionSpoof: !0 };
@@ -35,23 +35,10 @@ function sendToast(t, d = 5e3, g = "bottom", i = null, s = "16px", f = "Arial, s
     o.showToast()
 }
 
-// verifica se elemento está visível no viewport / não display:none / visibility != hidden
-function isVisible(el) {
-    if (!el || !(el instanceof Element)) return !1;
-    const style = window.getComputedStyle(el);
-    if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity) === 0) return !1;
-    const rect = el.getBoundingClientRect();
-    return rect.width > 0 && rect.height > 0;
-}
-
-function normalizeText(t) {
-    return (t || "").replace(/\s+/g, " ").trim().toLowerCase();
-}
-
-// clica um elemento apenas 1 vez (marca com atributo)
+// função auxiliar para clique
 function clickElementOnce(el) {
     try {
-        if (!el || !isVisible(el)) return !1;
+        if (!el) return !1;
         if (el.getAttribute && el.getAttribute("data-well-clicked") === "true") return !1;
         el.click();
         el.setAttribute && el.setAttribute("data-well-clicked", "true");
@@ -63,58 +50,11 @@ function clickElementOnce(el) {
     }
 }
 
-// procura pela opção correta DENTRO de um container (ou no document se container for document)
-function findChoiceInContainer(container, expectedTexts = []) {
-    if (!container) return null;
-    const selectors = "button, label, div, span, li, a";
-    const nodes = container.querySelectorAll ? container.querySelectorAll(selectors) : [];
-    for (const node of nodes) {
-        if (!isVisible(node)) continue;
-        const text = normalizeText(node.textContent || "");
-        if (!text) continue;
-        for (const expected of expectedTexts) {
-            const exp = normalizeText(expected);
-            // aceitar igualdade exata ou contains (mais tolerante)
-            if (text === exp || text.includes(exp)) {
-                return node;
-            }
-        }
-    }
-    return null;
-}
-
-// tenta achar e clicar a resposta correta dentro do container de classe passada
-function clickCorrectInClass(className, expectedTexts = []) {
-    try {
-        const container = document.getElementsByClassName(className)[0];
-        if (!container) return !1;
-        const choice = findChoiceInContainer(container, expectedTexts);
-        if (choice) {
-            return clickElementOnce(choice);
-        }
-        return !1;
-    } catch (e) {
-        console.error("clickCorrectInClass:", e);
-        return !1;
-    }
-}
-
-// procura globalmente pela resposta correta (fallback)
-function clickCorrectGlobal(expectedTexts = []) {
-    const choice = findChoiceInContainer(document, expectedTexts);
-    if (choice) return clickElementOnce(choice);
-    return !1;
-}
-
-// intercepta fetch e guarda o texto da opção correta na variável global __WeLL_correctText
+// intercepta fetch e força ter apenas 1 opção (correta)
 function spoofQuestion() {
     const phrases = ["WeLL ⛄️", "WeLL ⛄️", "WeLL ⛄️"];
     const originalFetch = window.fetch;
     window.fetch = async function (input, init) {
-        let body;
-        if (input instanceof Request) body = await input.clone().text();
-        else if (init && init.body) body = init.body;
-
         const originalResponse = await originalFetch.apply(this, arguments);
         const clonedResponse = originalResponse.clone();
 
@@ -125,7 +65,7 @@ function spoofQuestion() {
             if (responseObj?.data?.assessmentItem?.item?.itemData) {
                 let itemData = JSON.parse(responseObj.data.assessmentItem.item.itemData);
 
-                // se for pergunta tipo esperado, sobrescreve e guarda o texto correto
+                // força sempre pergunta "spoofada"
                 if (itemData.question && itemData.question.content && itemData.question.content[0] === itemData.question.content[0].toUpperCase()) {
                     itemData.answerArea = {
                         calculator: !1,
@@ -135,25 +75,20 @@ function spoofQuestion() {
                         zTable: !1
                     };
                     itemData.question.content = phrases[Math.floor(Math.random() * phrases.length)] + "[[☃ radio 1]]";
+
+                    // 🚀 agora só 1 opção, que é a correta
                     itemData.question.widgets = {
                         "radio 1": {
                             options: {
                                 choices: [
-                                    { content: "Resposta correta.", correct: !0 },
-                                    { content: "Resposta Errada.", correct: !1 }
+                                    { content: "Resposta correta.", correct: !0 }
                                 ]
                             }
                         }
                     };
 
-                    // guarda o texto correto (usa-se esta variável para match no DOM)
-                    try {
-                        const choices = itemData.question.widgets["radio 1"].options.choices;
-                        const correctChoice = choices.find(c => c.correct) || choices[0];
-                        window.__WeLL_correctText = correctChoice.content || "Resposta correta.";
-                    } catch (e) {
-                        window.__WeLL_correctText = "Resposta correta.";
-                    }
+                    // guarda o texto correto globalmente
+                    window.__WeLL_correctText = "Resposta correta.";
 
                     responseObj.data.assessmentItem.item.itemData = JSON.stringify(itemData);
                     sendToast("WeLL ⛄️", 1e3);
@@ -166,44 +101,26 @@ function spoofQuestion() {
                 }
             }
         } catch (e) {
-            // se parse falhar, ignora e retorna original
             console.error("spoofQuestion parse:", e);
         }
         return originalResponse;
     }
 }
 
-// loop principal que tenta clicar apenas NA opção que contém o texto correto (visível)
+// loop principal para clicar na única resposta
 function autoAnswer() {
     (async () => {
-        const baseClasses = ["_ssxvf9l", "_s6zfc1u", "_4i5p5ae", "_1r8cd7xe", "_1yok8f4"];
         for (;;) {
             if (window.features.autoAnswer && window.features.questionSpoof) {
                 await delay(featureConfigs.initialDelay);
 
-                // monta lista de textos esperados (usa a variável global setada no spoof)
-                const expectedTexts = [];
-                if (window.__WeLL_correctText) expectedTexts.push(window.__WeLL_correctText);
-                // fallbacks sensíveis
-                expectedTexts.push("Resposta correta.");
-                expectedTexts.push("resposta correta"); // sem pontuação
-
-                for (let i = 0; i < baseClasses.length; i++) {
-                    const cls = baseClasses[i];
-
-                    // tenta clicar dentro do container específico
-                    let clicked = clickCorrectInClass(cls, expectedTexts);
-
-                    // se não achou dentro do container, tenta globalmente (mas ainda apenas 1 clique)
-                    if (!clicked) clicked = clickCorrectGlobal(expectedTexts);
-
-                    // se clicou, aguarda o delay correspondente antes de seguir
-                    if (clicked && i < baseClasses.length - 1) {
-                        const nextDelay = featureConfigs.subsequentDelays[i % featureConfigs.subsequentDelays.length];
-                        await delay(nextDelay);
-                    } else {
-                        // se não clicou, pequena pausa para não travar a CPU
-                        await delay(200);
+                const allChoices = document.querySelectorAll("button, div, span, label");
+                for (const el of allChoices) {
+                    if (el.textContent && el.textContent.trim() === "Resposta correta.") {
+                        if (clickElementOnce(el)) {
+                            await delay(500);
+                            break;
+                        }
                     }
                 }
             } else {
@@ -213,7 +130,7 @@ function autoAnswer() {
     })();
 }
 
-// pequenos utilitários de load
+// loaders e splash
 async function loadScript(t) {
     return fetch(t).then(e => e.text()).then(e => { eval(e) });
 }
@@ -227,8 +144,6 @@ async function loadCss(t) {
         document.head.appendChild(n);
     });
 }
-
-// splash etc
 async function showSplashScreen() {
     const e = document.createElement("div");
     e.style.cssText = `
@@ -259,10 +174,11 @@ async function showSplashScreen() {
     e.remove();
 }
 
-// se não estiver na URL esperada, redireciona (com alerta)
+// proteção URL
 if (!/^https?:\/\/pt\.khanacademy\.org/.test(window.location.href))
     alert("Falha"), window.location.href = "https://pt.khanacademy.org/";
 
+// inicialização
 loadScript("https://cdn.jsdelivr.net/npm/darkreader@4.9.92/darkreader.min.js").then(async () => {
     DarkReader.setFetchMethod(window.fetch);
     DarkReader.enable();
@@ -275,7 +191,7 @@ loadCss("https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css");
 loadScript("https://cdn.jsdelivr.net/npm/toastify-js").then(async () => {
     sendToast("Sucess - ⛄️", 5e3, "bottom");
     window.features.autoAnswer = !0;
-    spoofQuestion(); // intercepta e grava __WeLL_correctText
+    spoofQuestion(); // agora só injeta 1 opção
     autoAnswer();
     document.addEventListener("focus", e => { e.target.blur() }, !0);
     console.clear();
