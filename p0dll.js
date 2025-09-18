@@ -1,11 +1,11 @@
-const ver="93",
+const ver="97",
 featureConfigs={initialDelay:3000,subsequentDelays:[300,1500,500,2000]};
 window.features={autoAnswer:true,questionSpoof:true};
 
-const COOLDOWN = 4000; // cooldown global 4s
+const COOLDOWN = 1222; // tempo entre ações
 
 const delay=ms=>new Promise(res=>setTimeout(res,ms));
-const playAudio=url=>{new Audio(url).play()};
+const playAudio=url=>{new Audio(url).play();};
 
 // ---- Toast ----
 function sendToast(t,d=5000,g="bottom",i=null,s="16px",f="Arial, sans-serif",c="#ffffff"){
@@ -76,30 +76,31 @@ function spoofQuestion(){
     }
 }
 
-// ---- Auto Answer ----
+// ---- Auto Answer com polling seguro ----
 async function autoAnswer(){
     const baseClasses=["_ssxvf9l","_s6zfc1u","_4i5p5ae","_1r8cd7xe","_1yok8f4"];
     const advanceTexts=['Verificar','Verificar resposta','Próxima pergunta','Próxima','Avançar','Continuar','Confirmar'];
     const correctTexts=['Resposta correta.','Resposta correta'];
 
-    for(;;){
-        if(!window.features.autoAnswer || !window.features.questionSpoof){await delay(COOLDOWN);continue;}
+    while(true){
+        if(!window.features.autoAnswer || !window.features.questionSpoof){await delay(COOLDOWN); continue;}
         await delay(featureConfigs.initialDelay);
 
         for(let i=0;i<baseClasses.length;i++){
-            // espera até o item estar disponível
+            // polling até o item e o botão de resposta estarem disponíveis
             let correct=null;
-            for(let tryCount=0;tryCount<10;tryCount++){
+            for(let tryCount=0;tryCount<30;tryCount++){
                 correct=findClickableByTexts(correctTexts);
                 if(correct) break;
-                await delay(500);
+                await delay(400); // espera incremental para sincronizar
             }
             if(correct){
                 clickElementOnce(correct);
                 await delay(COOLDOWN);
 
+                // tenta clicar "Verificar" ou avançar
                 let advanced=false;
-                for(let attempt=0;attempt<8;attempt++){
+                for(let attempt=0;attempt<15;attempt++){
                     const avancar=findClickableByTexts(advanceTexts);
                     if(avancar && !avancar.disabled){
                         clickElementOnce(avancar);
