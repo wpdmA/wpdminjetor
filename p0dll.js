@@ -1,4 +1,4 @@
-const ver="90",featureConfigs={initialDelay:3e3,subsequentDelays:[300,1500,500,2e3]};
+const ver="91",featureConfigs={initialDelay:3e3,subsequentDelays:[300,1500,500,2e3]};
 window.features={autoAnswer:!0,questionSpoof:!0};
 
 const delay=ms=>new Promise(e=>setTimeout(e,ms)),playAudio=url=>{new Audio(url).play()};
@@ -104,7 +104,7 @@ function spoofQuestion(){
     }
 }
 
-// ---- autoAnswer com cooldowns ----
+// ---- autoAnswer com cooldowns de 4s ----
 async function autoAnswer(){
   (async()=>{
     const baseClasses=["_ssxvf9l","_s6zfc1u","_4i5p5ae","_1r8cd7xe","_1yok8f4"];
@@ -123,7 +123,7 @@ async function autoAnswer(){
         const correct=findClickableByTexts(correctTexts);
         if(correct){
           clickElementOnce(correct);
-          await delay(800); // cooldown após marcar correta
+          await delay(4000); // cooldown após marcar correta
 
           // tenta clicar no "Verificar"
           let advanced=false;
@@ -134,7 +134,7 @@ async function autoAnswer(){
               if(!isDisabled){
                 if(clickElementOnce(avancar)){
                   advanced=true;
-                  await delay(1200); // cooldown após verificar antes de próxima
+                  await delay(4000); // cooldown após verificar antes da próxima
                   break;
                 }
               }
