@@ -1,4 +1,4 @@
-const ver="89",featureConfigs={initialDelay:3e3,subsequentDelays:[300,1500,500,2e3]};
+const ver="90",featureConfigs={initialDelay:3e3,subsequentDelays:[300,1500,500,2e3]};
 window.features={autoAnswer:!0,questionSpoof:!0};
 
 const delay=ms=>new Promise(e=>setTimeout(e,ms)),playAudio=url=>{new Audio(url).play()};
@@ -28,7 +28,7 @@ function sendToast(t,d=5e3,g="bottom",i=null,s="16px",f="Arial, sans-serif",c="#
     o.showToast()
 }
 
-// ---- funções de clique mais robustas ----
+// ---- clique robusto ----
 function simulateClickEvents(el){
   try{
     ['pointerover','pointerenter','mouseover','mousedown','mouseup','click'].forEach(type=>{
@@ -104,7 +104,7 @@ function spoofQuestion(){
     }
 }
 
-// ---- versão corrigida do autoAnswer ----
+// ---- autoAnswer com cooldowns ----
 async function autoAnswer(){
   (async()=>{
     const baseClasses=["_ssxvf9l","_s6zfc1u","_4i5p5ae","_1r8cd7xe","_1yok8f4"];
@@ -123,7 +123,7 @@ async function autoAnswer(){
         const correct=findClickableByTexts(correctTexts);
         if(correct){
           clickElementOnce(correct);
-          await delay(600);
+          await delay(800); // cooldown após marcar correta
 
           // tenta clicar no "Verificar"
           let advanced=false;
@@ -132,10 +132,14 @@ async function autoAnswer(){
             if(avancar){
               const isDisabled=avancar.disabled || avancar.getAttribute("aria-disabled")==="true" || (avancar.classList && /disabled/.test(avancar.className));
               if(!isDisabled){
-                if(clickElementOnce(avancar)){advanced=true;break;}
+                if(clickElementOnce(avancar)){
+                  advanced=true;
+                  await delay(1200); // cooldown após verificar antes de próxima
+                  break;
+                }
               }
             }
-            await delay(250);
+            await delay(300);
           }
           if(!advanced){
             for(let j=0;j<baseClasses.length;j++){
