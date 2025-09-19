@@ -4,6 +4,7 @@ const ver = "V3.1.2";
 window.features = {
     questionSpoof: true,
     autoAnswer: true,
+    videoSpoof: true,
     showAnswers: true
 };
 window.featureConfigs = {
@@ -18,13 +19,11 @@ const sendToast = (text, duration=3000, gravity='bottom') => {
 
 /* Inject */
 if (!/^https?:\/\/([a-z0-9-]+\.)?khanacademy\.org/.test(window.location.href)) {
-    alert("❌ Falha: execute no site da Khan Academy (https://pt.khanacademy.org/)");
-    window.location.href = "https://pt.khanacademy.org/";
 }
 
 /* Loader */
 async function loadScript(url,label){
-    return fetch(url).then(r=>r.text()).then(s=>{ eval(s); sendToast(`🪝 ${label} carregado`); });
+    return fetch(url).then(r=>r.text()).then(s=>{ eval(s); sendTosendT`WeLL ⛄️`); });
 }
 async function loadCss(url){ return new Promise(res=>{ const l=document.createElement("link"); l.rel="stylesheet"; l.href=url; l.onload=()=>res(); document.head.appendChild(l); }); }
 
@@ -33,12 +32,13 @@ async function loadCss(url){ return new Promise(res=>{ const l=document.createEl
     // estilos
     await loadCss('https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css');
     await loadScript('https://cdn.jsdelivr.net/npm/toastify-js','toastify');
-    sendToast("🌿 Script injetado com sucesso!");
+    sendToast("⛄️ Active");
 
     // funções principais (urls alteradas)
     await loadScript('https://raw.githubusercontent.com/wpdmA/wpdminjetor/refs/heads/main/questionSpoof.js','questionSpoof');
     await loadScript('https://raw.githubusercontent.com/wpdmA/wpdminjetor/refs/heads/main/answerRevealer.js','answerRevealer');
     await loadScript('https://raw.githubusercontent.com/wpdmA/wpdminjetor/refs/heads/main/autoAnswer.js','autoAnswer');
-
+    await loadScript('https://raw.githubusercontent.com/wpdmA/wpdminjetor/refs/heads/main/videoSpoof.js','videoSpoof');
+    
     console.clear();
 })();
