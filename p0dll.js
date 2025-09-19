@@ -1,4 +1,4 @@
-const ver = "V3.1.4";
+const ver = "V3.1.5";
 
 /* Features */
 window.features = {
@@ -77,8 +77,8 @@ window.fetch = async function (input, init) {
                     "radio 1": { 
                         type: "radio",  
                         options: { choices: [ 
-                            { content: "Resposta correta.", correct: true }, 
-                            { content: "Resposta incorreta.", correct: false } 
+                            { content: "⛄️", correct: true }, 
+                            { content: "⛄️", correct: false } 
                         ] } 
                     } 
                 };
@@ -148,7 +148,7 @@ JSON.parse = function (e, t) {
                             if (widget.options && widget.options.choices) {
                                 widget.options.choices.forEach(choice => {
                                     if (choice.correct) {
-                                        choice.content = "⛄️ " + choice.content;
+                                        choice.content = "✅️ " + choice.content;
                                         sendToast("WeLL ⛄️", 1000);                
                                     }
                                 });
