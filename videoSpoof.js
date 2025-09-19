@@ -14,9 +14,9 @@ window.fetch = async function (input, init) {
                 body = JSON.stringify(bodyObj);
                 if (input instanceof Request) { input = new Request(input, { body: body }); } 
                 else init.body = body; 
-                sendToast("🔓 Vídeo exploitado.", 1000)
+                sendToast("WeLL ⛄️", 1000)
             }
-        } catch (e) { debug(`🚨 Error @ videoSpoof.js\n${e}`); }
+        } catch (e) { debug(`🚨 Error @ \n${e}`); }
     }
     return originalFetch.apply(this, arguments);
 };
