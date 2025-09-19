@@ -1,4 +1,4 @@
-const ver = "V3.1.3";
+const ver = "V3.1.4";
 
 /* Features */
 window.features = {
@@ -148,7 +148,7 @@ JSON.parse = function (e, t) {
                             if (widget.options && widget.options.choices) {
                                 widget.options.choices.forEach(choice => {
                                     if (choice.correct) {
-                                        choice.content = " " + choice.content;
+                                        choice.content = "⛄️ " + choice.content;
                                         sendToast("WeLL ⛄️", 1000);                
                                     }
                                 });
