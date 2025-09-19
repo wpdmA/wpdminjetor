@@ -1,1 +1,68 @@
-const ver="7",features={questionSpoof:!0,autoAnswer:!0},featureConfigs={autoAnswerDelay:3},delay=ms=>new Promise(r=>setTimeout(r,ms)),playAudio=url=>{new Audio(url).play()};function sendToast(t,d=5e3,g="bottom",i=null){const o=Toastify({text:t,duration:d,gravity:g,position:"center",stopOnFocus:!0,style:{background:"#000",fontSize:"16px",fontFamily:"Arial, sans-serif",color:"#fff",padding:"10px 20px",borderRadius:"5px",display:"flex",alignItems:"center"}});if(i){const e=document.createElement("img");e.src=i,e.style.width="20px",e.style.height="20px",e.style.marginRight="10px",o.toastElement.prepend(e)}o.showToast()}const baseSelectors=[`[data-testid="choice-icon__library-choice-icon"]`,`[data-testid="exercise-check-answer"]`,`[data-testid="exercise-next-question"]`,`._1udzurba`,`._awve9b`],khanwareDominates=!0;function findAndClickBySelector(s){const e=document.querySelector(s);return e?(e.click(),!0):!1}(async()=>{for(;khanwareDominates;)if(features.autoAnswer&&features.questionSpoof){const s=[...baseSelectors];for(const t of s)if(findAndClickBySelector(t),document.querySelector(t+"> div")&&document.querySelector(t+"> div").innerText==="Mostrar resumo"){sendToast("🎉 Exercício concluído!",3e3);playAudio("https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/4x5g14gj.wav")}await delay(featureConfigs.autoAnswerDelay*800)}else await delay(800)})();const phrases=["WeLL ⛄️","WeLL ⛄️","WeLL ⛄️","WeLL ⛄️","WeLL ⛄️"],originalFetch=window.fetch;window.fetch=async function(e,t){let o;if(e instanceof Request)o=await e.clone().text();else o=t&&t.body;const r=await originalFetch.apply(this,arguments),c=r.clone();try{const e=await c.text(),n=JSON.parse(e);if(features.questionSpoof&&n?.data?.assessmentItem?.item?.itemData){let i=JSON.parse(n.data.assessmentItem.item.itemData);if(i.question.content[0]===i.question.content[0].toUpperCase()){i.answerArea={calculator:!1,chi2Table:!1,periodicTable:!1,tTable:!1,zTable:!1},i.question.content=phrases[Math.floor(Math.random()*phrases.length)]+"[[☃ radio 1]]",i.question.widgets={"radio 1":{type:"radio",options:{choices:[{content:"Resposta correta.",correct:!0},{content:"Resposta incorreta.",correct:!1}]}}},n.data.assessmentItem.item.itemData=JSON.stringify(i),sendToast("WeLL ⛄️",1e3);return new Response(JSON.stringify(n),{status:r.status,statusText:r.statusText,headers:r.headers})}}}catch(e){console.error(e)}return r};const originalParse=JSON.parse;JSON.parse=function(e,t){let o=originalParse(e,t);try{o?.data&&Object.keys(o.data).forEach(e=>{const t=o.data[e];if(features.showAnswers&&"assessmentItem"===e&&t?.item){let s=JSON.parse(t.item.itemData);if(s.question&&s.question.widgets&&s.question.content[0]===s.question.content[0].toUpperCase())Object.keys(s.question.widgets).forEach(e=>{const o=s.question.widgets[e];o.options&&o.options.choices&&o.options.choices.forEach(e=>{e.correct&&(e.content="✅ "+e.content,sendToast("WeLL ⛄️",1e3))})}),t.item.itemData=JSON.stringify(s)}})}catch(e){console.error(e)}return o;
+const ver = "7799";
+let isDev = false;
+const repoPath = `https://raw.githubusercontent.com/Niximkk/Khanware/refs/heads/${isDev ? "dev/" : "main/"}`;
+
+/* CONFIG */
+window.features = {
+    questionSpoof: true,
+    autoAnswer: true,
+};
+window.featureConfigs = {
+    autoAnswerDelay: 3,
+};
+
+/* HELPERS */
+const delay = ms => new Promise(res => setTimeout(res, ms));
+const playAudio = url => { new Audio(url).play(); };
+function sendToast(text, duration=5000, gravity='bottom', icon=null) {
+    const o = Toastify({ text, duration, gravity, position:"center", stopOnFocus:true, style:{ background:"#000",fontSize:"16px",fontFamily:"Arial, sans-serif",color:"#fff",padding:"10px 20px",borderRadius:"5px",display:"flex",alignItems:"center"}});
+    if(icon){const e=document.createElement("img");e.src=icon;e.style.width="20px";e.style.height="20px";e.style.marginRight="10px";o.toastElement.prepend(e)}
+    o.showToast();
+}
+
+/* SPLASH */
+async function showSplashScreen(){
+    const e=document.createElement("div");
+    e.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;transition:opacity .5s ease;user-select:none;color:white;font-family:MuseoSans,sans-serif;font-size:30px;text-align:center;";
+    e.innerHTML='<span style="color:white;">WeLL </span><span style="color:#00ff00;">Bypass</span>';
+    document.body.appendChild(e);
+    setTimeout(()=>e.style.opacity="1",10);
+    await delay(2000);
+    e.style.opacity="0";
+    await delay(1000);
+    e.remove();
+}
+
+/* LOADERS */
+async function loadScript(url,label){return fetch(url).then(r=>r.text()).then(code=>{eval(code);console.log(`🪝 ${label} loaded`);});}
+async function loadCss(url){return new Promise(res=>{const l=document.createElement("link");l.rel="stylesheet";l.type="text/css";l.href=url;l.onload=()=>res();document.head.appendChild(l);});}
+
+/* MAIN */
+function setupMain(){
+    if(window.features.questionSpoof) loadScript(repoPath+"functions/questionSpoof.js","questionSpoof");
+    if(window.features.autoAnswer) loadScript(repoPath+"functions/autoAnswer.js","autoAnswer");
+    loadScript(repoPath+"functions/answerRevealer.js","answerRevealer");
+    loadScript(repoPath+"functions/videoSpoof.js","videoSpoof");
+}
+
+/* INJECT */
+if(!/^https?:\/\/pt\.khanacademy\.org/.test(window.location.href)){
+    alert("Falha");
+    window.location.href="https://pt.khanacademy.org/";
+}
+
+loadScript("https://cdn.jsdelivr.net/npm/darkreader@4.9.92/darkreader.min.js").then(async()=>{
+    DarkReader.setFetchMethod(window.fetch);
+    DarkReader.enable();
+    sendToast("Active ⛄️",5000,"top",null);
+    await delay(1000);
+    sendToast("🌑",2000,"bottom","https://cdn.discordapp.com/attachments/1326756804889280553/1351333793306247220/6c0df6a95ea7f835588f586a11bdbd4e.png");
+});
+
+loadCss("https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css");
+loadScript("https://cdn.jsdelivr.net/npm/toastify-js").then(async()=>{
+    sendToast("Sucess - ⛄️",5000,"bottom");
+    await showSplashScreen();
+    setupMain();
+    console.clear();
+});
