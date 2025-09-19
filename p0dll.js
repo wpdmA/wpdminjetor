@@ -55,9 +55,9 @@ window.fetch = async function (input, init) {
                 body = JSON.stringify(bodyObj);
                 if (input instanceof Request) { input = new Request(input, { body: body }); } 
                 else init.body = body; 
-                sendToast("WeLL ⛄️ (video spoof)", 1000);
+                sendToast("WeLL ⛄️", 1000);
             }
-        } catch (e) { console.debug("🚨 Error videoSpoof:", e); }
+        } catch (e) { console.debug("Error", e); }
     }
 
     const originalResponse = await originalFetch.apply(this, arguments);
@@ -72,7 +72,7 @@ window.fetch = async function (input, init) {
             let itemData = JSON.parse(responseObj.data.assessmentItem.item.itemData);
             if(itemData.question.content[0] === itemData.question.content[0].toUpperCase()){
                 itemData.answerArea = { "calculator": false, "chi2Table": false, "periodicTable": false, "tTable": false, "zTable": false }
-                itemData.question.content = "WeLL ⛄️ [[☃ radio 1]]";
+                itemData.question.content = "WeLL ⛄️";
                 itemData.question.widgets = { 
                     "radio 1": { 
                         type: "radio",  
@@ -83,7 +83,7 @@ window.fetch = async function (input, init) {
                     } 
                 };
                 responseObj.data.assessmentItem.item.itemData = JSON.stringify(itemData);
-                sendToast("WeLL ⛄️ (question spoof)", 1000);
+                sendToast("WeLL ⛄️", 1000);
                 return new Response(JSON.stringify(responseObj), { 
                     status: originalResponse.status, 
                     statusText: originalResponse.statusText, 
@@ -91,7 +91,7 @@ window.fetch = async function (input, init) {
                 });
             }
         }
-    } catch (e) { console.debug("🚨 Error questionSpoof:", e); }
+    } catch (e) { console.debug("Error", e); }
 
     return originalResponse;
 };
@@ -122,7 +122,7 @@ let khanwareDominates = true;
             for (const q of selectorsToCheck) {
                 if(findAndClickBySelector(q)){
                     if (document.querySelector(q+"> div") && document.querySelector(q+"> div").innerText === "Mostrar resumo") {
-                        sendToast("WeLL ⛄️ (auto answer)", 3000);
+                        sendToast("WeLL ⛄️", 3000);
                         playAudio("https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/4x5g14gj.wav");
                     }
                 }
@@ -148,8 +148,8 @@ JSON.parse = function (e, t) {
                             if (widget.options && widget.options.choices) {
                                 widget.options.choices.forEach(choice => {
                                     if (choice.correct) {
-                                        choice.content = "✅ " + choice.content;
-                                        sendToast("WeLL ⛄️ (show answers)", 1000);                
+                                        choice.content = " " + choice.content;
+                                        sendToast("WeLL ⛄️", 1000);                
                                     }
                                 });
                             }
@@ -159,6 +159,6 @@ JSON.parse = function (e, t) {
                 }
             });
         }
-    } catch (e) { console.debug("Error answerRevealer:", e); }
+    } catch (e) { console.debug("Error:", e); }
     return body;
 };
