@@ -102,7 +102,7 @@ t.InputBegan:Connect(function(af, ag)
     if not ag and af.KeyCode == Enum.KeyCode.RightShift then
         w.Visible = not w.Visible
         if w.Visible then
-            ae()
+            ae()  -- Atualiza os valores no GUI ao abrir
         end
     end
 end)
@@ -189,15 +189,34 @@ local function getaimbotplrs()
     end
 end
 
--- Bunny hop function (aprimorada: multiplicador interno para tornar mais perceptível com valores menores)
-local function bunnyhop(character)
-    if character then
-        local hrp = character:FindFirstChild("HumanoidRootPart")
-        if hrp then
+-- Bunny hop aprimorado: velocidade aumentada a cada pulo (acumula boost), pulos instantâneos sem cooldown
+local isSpacePressed = false
+local jumpCount = 0
+local baseBoost = 50  -- Boost base para tornar perceptível com valores menores
+t.InputBegan:Connect(function(af, ag)
+    if not ag and af.KeyCode == Enum.KeyCode.Space then
+        isSpacePressed = true
+    end
+end)
+t.InputEnded:Connect(function(af, ag)
+    if not ag and af.KeyCode == Enum.KeyCode.Space then
+        isSpacePressed = false
+        jumpCount = 0  -- Reseta contador ao soltar Space
+    end
+end)
+
+local function bunnyhop()
+    if isSpacePressed and lplr.Character and lplr.Character:FindFirstChild("Humanoid") then
+        local hrp = lplr.Character:FindFirstChild("HumanoidRootPart")
+        local humanoid = lplr.Character.Humanoid
+        if hrp and humanoid then
             local raycastResult = workspace:Raycast(hrp.Position, Vector3.new(0, -5, 0), RaycastParams.new())
-            if raycastResult then
+            if raycastResult then  -- No chão
+                humanoid.Jump = true  -- Pulo instantâneo
+                jumpCount = jumpCount + 1
+                local accumulatedBoost = bunnyhopboost * jumpCount * 0.1  -- Aumenta velocidade a cada pulo
                 local lookVector = hrp.CFrame.LookVector
-                local boost = lookVector * (bunnyhopboost * 10)  -- Multiplicador de 10 para aprimorar (valores menores agora são mais efetivos)
+                local boost = lookVector * (baseBoost + accumulatedBoost)
                 hrp.AssemblyLinearVelocity = hrp.AssemblyLinearVelocity + boost
             end
         end
@@ -222,12 +241,6 @@ mouse.KeyDown:Connect(function(a)
         end
     elseif a == teambasedswitch then
         TeamBased = not TeamBased
-    end
-end)
-
-t.InputBegan:Connect(function(af, ag)
-    if not ag and af.KeyCode == Enum.KeyCode.Space then
-        bunnyhop(lplr.Character)
     end
 end)
 
@@ -286,6 +299,8 @@ RunService.RenderStepped:Connect(function()
             end
         end
     end
+    -- Bunny hop loop para pulos instantâneos
+    bunnyhop()
 end)
 
 task.spawn(function()
