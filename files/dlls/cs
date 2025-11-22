@@ -1,1 +1,297 @@
-local a=game:GetService("Players");local b=true;local c="o";local d=true;local e="e";local f=false;local g=5;local h=false;local i=true;local j=1;local k=100;local l={};local m=a.LocalPlayer;local n=workspace.CurrentCamera;local o=m:GetMouse();local p=false;local q="k";local r=nil;local s;local t=game:GetService("UserInputService");local u=game:GetService("RunService");local v=Instance.new("ScreenGui");v.Name="WPDM_GUI";v.ResetOnSpawn=false;v.Parent=m:WaitForChild("PlayerGui");local w=Instance.new("Frame");w.Size=UDim2.new(0,250,0,150);w.Position=UDim2.new(0.5,-125,0.5,-75);w.BackgroundColor3=Color3.new(0.2,0.2,0.2);w.BackgroundTransparency=0.1;w.BorderSizePixel=2;w.Visible=false;w.Parent=v;local x=Instance.new("TextLabel");x.Size=UDim2.new(1,0,0,30);x.Position=UDim2.new(0,0,0,0);x.BackgroundTransparency=1;x.Text="WPDM";x.TextColor3=Color3.new(1,1,1);x.TextScaled=true;x.Font=Enum.Font.SourceSansBold;x.Parent=w;local y=Instance.new("TextLabel");y.Size=UDim2.new(0.5,0,0,30);y.Position=UDim2.new(0,10,0,40);y.BackgroundTransparency=1;y.Text="Lock Angle:";y.TextColor3=Color3.new(1,1,1);y.TextScaled=true;y.Font=Enum.Font.SourceSans;y.Parent=w;local z=Instance.new("TextBox");z.Size=UDim2.new(0.4,0,0,30);z.Position=UDim2.new(0.55,0,0,40);z.BackgroundColor3=Color3.new(0.3,0.3,0.3);z.Text=tostring(j);z.TextColor3=Color3.new(1,1,1);z.Font=Enum.Font.SourceSans;z.Parent=w;z.FocusLost:Connect(function(aa)if aa then local ab=tonumber(z.Text);if ab then j=ab;else z.Text=tostring(j);end;end;end);local ac=Instance.new("TextLabel");ac.Size=UDim2.new(0.5,0,0,30);ac.Position=UDim2.new(0,10,0,80);ac.BackgroundTransparency=1;ac.Text="Bunnyhop Boost:";ac.TextColor3=Color3.new(1,1,1);ac.TextScaled=true;ac.Font=Enum.Font.SourceSans;ac.Parent=w;local ad=Instance.new("TextBox");ad.Size=UDim2.new(0.4,0,0,30);ad.Position=UDim2.new(0.55,0,0,80);ad.BackgroundColor3=Color3.new(0.3,0.3,0.3);ad.Text=tostring(k);ad.TextColor3=Color3.new(1,1,1);ad.Font=Enum.Font.SourceSans;ad.Parent=w;ad.FocusLost:Connect(function(aa)if aa then local ab=tonumber(ad.Text);if ab then k=ab;else ad.Text=tostring(k);end;end;end);local ae=function()z.Text=tostring(j);ad.Text=tostring(k);end;t.InputBegan:Connect(function(af,ag)if not ag and af.KeyCode==Enum.KeyCode.RightShift then w.Visible=not w.Visible;if w.Visible then ae();end;end;end);local ah=function()if not s then s=Instance.new("Folder");s.Parent=n;end;for _,ai in ipairs(s:GetChildren())do ai:Destroy();end;for _,aj in ipairs(a:GetChildren())do if aj.Character and aj.Character:FindFirstChild("Humanoid")and aj.Character.Humanoid.Health>0 and aj.Name~=m.Name then local ak=not b or(b and aj.Team~=m.Team);if ak then local al=Instance.new("BillboardGui",s);al.Name=aj.Name;al.AlwaysOnTop=true;al.Size=UDim2.new(1,0,1,0);al.Adornee=aj.Character.Head;local am=Instance.new('Frame',al);am.Active=true;am.BackgroundColor3=Color3.new(0,1,0);am.BackgroundTransparency=0;am.BorderSizePixel=0;am.AnchorPoint=Vector2.new(.5,.5);am.Position=UDim2.new(.5,0,.5,0);am.Size=UDim2.new(1,0,1,0);am.Rotation=0;aj.Character.Humanoid.Died:Connect(function()al:Destroy();end);end;end;end;end;local an=function(ao,ap,aq)if aq then return Vector3.new(math.deg(ao:ToOrientation()-ap:ToOrientation()));else return Vector3.new(ao:ToOrientation()-ap:ToOrientation());end;end;local ar=function(as)return math.abs(an(n.CFrame,as.CFrame).X)+math.abs(an(n.CFrame,as.CFrame).Y);end;local at=function(as)n.CFrame=CFrame.new(n.CFrame.Position,as.Position);end;local au=function()l={};local av=n.CFrame.Position;local aw=m.Character;if not aw then return;end;local ax={};for _,ay in ipairs(aw:GetChildren())do if ay:IsA("BasePart")then table.insert(ax,ay);end;end;for _,aj in ipairs(a:GetChildren())do if aj.Character and aj.Character:FindFirstChild("Humanoid")and aj.Character.Humanoid.Health>0 and aj.Name~=m.Name and aj.Character:FindFirstChild("Head")then local az=not b or(b and aj.Team~=m.Team);if az then local ba=CFrame.new(av,aj.Character.Head.Position);local bb=Ray.new(ba.Position,ba.LookVector*10000);local bc=workspace:FindPartOnRayWithIgnoreList(bb,ax);if bc and bc:IsDescendantOf(aj.Character)and not bc:IsDescendantOf(aw)then table.insert(l,bc);end;end;end;end;end;local bd=function(be)if be then local bf=be:FindFirstChild("HumanoidRootPart");if bf then local bg=workspace:Raycast(bf.Position,Vector3.new(0,-5,0),RaycastParams.new());if bg then local bh=bf.CFrame.LookVector;local bi=bh*k;bf.AssemblyLinearVelocity=bf.AssemblyLinearVelocity+bi;end;end;end;end;t.InputBegan:Connect(function(af,ag)if not ag and af.KeyCode==Enum.KeyCode.Space then bd(m.Character);end;end);o.KeyDown:Connect(function(bj)if bj=="t"then ah();elseif bj=="u"then f=not f;elseif bj=="l"then h=not h;elseif bj=="j"then if o.Target then o.Target:Destroy();end;elseif bj==q then p=not p;if not p then r=nil;end;elseif bj==c then b=not b;end;end);o.Button1Down:Connect(function()if not r then local bk=math.rad(j);for _,aj in ipairs(a:GetChildren())do if aj.Name~=m.Name and aj.Character and aj.Character:FindFirstChild("Head")and aj.Character:FindFirstChild("Humanoid")and aj.Character.Humanoid.Health>1 then local az=not b or(b and aj.Team~=m.Team);if az then local bl=ar(aj.Character.Head);if bl<bk then bk=bl;r=aj.Character.Head;end;end;aj.Character.Humanoid.Died:Connect(function()if r and r:IsDescendantOf(aj.Character)then r=nil;end;end);end;end;end;end);o.Button1Up:Connect(function()r=nil;end);u.RenderStepped:Connect(function()local aw=m.Character;if not aw or not aw:FindFirstChild("Humanoid")then return;end;local bm=aw.Humanoid;if r then at(r);if r:IsDescendantOf(aw)then r=nil;end;elseif f and not p then au();local bk=999;for _,bn in ipairs(l)do if not bn:IsDescendantOf(aw)then local bl=ar(bn);if bl<bk and bn~=aw.Head then bk=bl;r=bn;bn.Parent.Humanoid.Died:Connect(function()r=nil;end);end;end;end;end;end);task.spawn(function()while task.wait(g)do if h then pcall(ah);end;end;end);
+local plrs = game:GetService("Players")
+local TeamBased = true
+local teambasedswitch = "o"
+local presskeytoaim = true
+local aimkey = "e"
+local raycast = false
+local espupdatetime = 5
+local autoesp = false
+local lockaim = true
+local lockangle = 1
+local plrsforaim = {}
+local lplr = plrs.LocalPlayer
+local cam = workspace.CurrentCamera
+local mouse = lplr:GetMouse()
+local switch = false
+local key = "k"
+local aimatpart = nil
+local espforlder
+local t = game:GetService("UserInputService")
+local u = game:GetService("RunService")
+local v = Instance.new("ScreenGui")
+v.Name = "WPDM_GUI"
+v.ResetOnSpawn = false
+v.Parent = lplr:WaitForChild("PlayerGui")
+local w = Instance.new("Frame")
+w.Size = UDim2.new(0, 250, 0, 150)
+w.Position = UDim2.new(0.5, -125, 0.5, -75)
+w.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+w.BackgroundTransparency = 0.1
+w.BorderSizePixel = 2
+w.Visible = false
+w.Parent = v
+local x = Instance.new("TextLabel")
+x.Size = UDim2.new(1, 0, 0, 30)
+x.Position = UDim2.new(0, 0, 0, 0)
+x.BackgroundTransparency = 1
+x.Text = "WPDM"
+x.TextColor3 = Color3.new(1, 1, 1)
+x.TextScaled = true
+x.Font = Enum.Font.SourceSansBold
+x.Parent = w
+local y = Instance.new("TextLabel")
+y.Size = UDim2.new(0.5, 0, 0, 30)
+y.Position = UDim2.new(0, 10, 0, 40)
+y.BackgroundTransparency = 1
+y.Text = "Lock Angle:"
+y.TextColor3 = Color3.new(1, 1, 1)
+y.TextScaled = true
+y.Font = Enum.Font.SourceSans
+y.Parent = w
+local z = Instance.new("TextBox")
+z.Size = UDim2.new(0.4, 0, 0, 30)
+z.Position = UDim2.new(0.55, 0, 0, 40)
+z.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+z.Text = tostring(lockangle)
+z.TextColor3 = Color3.new(1, 1, 1)
+z.Font = Enum.Font.SourceSans
+z.Parent = w
+z.FocusLost:Connect(function(aa)
+    if aa then
+        local ab = tonumber(z.Text)
+        if ab then
+            lockangle = ab
+        else
+            z.Text = tostring(lockangle)
+        end
+    end
+end)
+local ac = Instance.new("TextLabel")
+ac.Size = UDim2.new(0.5, 0, 0, 30)
+ac.Position = UDim2.new(0, 10, 0, 80)
+ac.BackgroundTransparency = 1
+ac.Text = "Bunnyhop Boost:"
+ac.TextColor3 = Color3.new(1, 1, 1)
+ac.TextScaled = true
+ac.Font = Enum.Font.SourceSans
+ac.Parent = w
+local ad = Instance.new("TextBox")
+ad.Size = UDim2.new(0.4, 0, 0, 30)
+ad.Position = UDim2.new(0.55, 0, 0, 80)
+ad.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+ad.Text = tostring(100)  -- Default bunnyhop boost
+ad.TextColor3 = Color3.new(1, 1, 1)
+ad.Font = Enum.Font.SourceSans
+ad.Parent = w
+ad.FocusLost:Connect(function(aa)
+    if aa then
+        local ab = tonumber(ad.Text)
+        if ab then
+            bunnyhopboost = ab
+        else
+            ad.Text = tostring(bunnyhopboost)
+        end
+    end
+end)
+local bunnyhopboost = 100  -- Variable for bunnyhop boost
+local ae = function()
+    z.Text = tostring(lockangle)
+    ad.Text = tostring(bunnyhopboost)
+end
+t.InputBegan:Connect(function(af, ag)
+    if not ag and af.KeyCode == Enum.KeyCode.RightShift then
+        w.Visible = not w.Visible
+        if w.Visible then
+            ae()
+        end
+    end
+end)
+
+local function addesp()
+    if not espforlder then
+        espforlder = Instance.new("Folder")
+        espforlder.Parent = cam
+    end
+    for _, v in ipairs(espforlder:GetChildren()) do
+        v:Destroy()
+    end
+    for _, plr in ipairs(plrs:GetChildren()) do
+        if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name then
+            local shouldAdd = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+            if shouldAdd then
+                local bill = Instance.new("BillboardGui", espforlder)
+                bill.Name = plr.Name
+                bill.AlwaysOnTop = true
+                bill.Size = UDim2.new(1, 0, 1, 0)
+                bill.Adornee = plr.Character.Head
+                local Frame = Instance.new('Frame', bill)
+                Frame.Active = true
+                Frame.BackgroundColor3 = Color3.new(0, 1, 0)
+                Frame.BackgroundTransparency = 0
+                Frame.BorderSizePixel = 0
+                Frame.AnchorPoint = Vector2.new(.5, .5)
+                Frame.Position = UDim2.new(.5, 0, .5, 0)
+                Frame.Size = UDim2.new(1, 0, 1, 0)
+                Frame.Rotation = 0
+                plr.Character.Humanoid.Died:Connect(function()
+                    bill:Destroy()
+                end)
+            end
+        end
+    end
+end
+
+local function getfovxyz(p0, p1, deg)
+    local x1, y1, z1 = p0:ToOrientation()
+    local cf = CFrame.new(p0.Position, p1.Position)
+    local x2, y2, z2 = cf:ToOrientation()
+    if deg then
+        return Vector3.new(math.deg(x1 - x2), math.deg(y1 - y2), math.deg(z1 - z2))
+    else
+        return Vector3.new(x1 - x2, y1 - y2, z1 - z2)
+    end
+end
+
+local function checkfov(part)
+    local fov = getfovxyz(cam.CFrame, part.CFrame)
+    return math.abs(fov.X) + math.abs(fov.Y)
+end
+
+local function aimat(part)
+    cam.CFrame = CFrame.new(cam.CFrame.Position, part.Position)
+end
+
+local function getaimbotplrs()
+    plrsforaim = {}
+    local camPos = cam.CFrame.Position
+    local lplrChar = lplr.Character
+    if not lplrChar then
+        return
+    end
+    local ign = {}
+    for _, v in ipairs(lplrChar:GetChildren()) do
+        if v:IsA("BasePart") then
+            table.insert(ign, v)
+        end
+    end
+    for _, plr in ipairs(plrs:GetChildren()) do
+        if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name and plr.Character:FindFirstChild("Head") then
+            local shouldCheck = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+            if shouldCheck then
+                local cf = CFrame.new(camPos, plr.Character.Head.Position)
+                local r = Ray.new(cf.Position, cf.LookVector * 10000)
+                local obj = workspace:FindPartOnRayWithIgnoreList(r, ign)
+                if obj and obj:IsDescendantOf(plr.Character) and not obj:IsDescendantOf(lplrChar) then
+                    table.insert(plrsforaim, obj)
+                end
+            end
+        end
+    end
+end
+
+-- Bunny hop function (aprimorada: multiplicador interno para tornar mais perceptível com valores menores)
+local function bunnyhop(character)
+    if character then
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local raycastResult = workspace:Raycast(hrp.Position, Vector3.new(0, -5, 0), RaycastParams.new())
+            if raycastResult then
+                local lookVector = hrp.CFrame.LookVector
+                local boost = lookVector * (bunnyhopboost * 10)  -- Multiplicador de 10 para aprimorar (valores menores agora são mais efetivos)
+                hrp.AssemblyLinearVelocity = hrp.AssemblyLinearVelocity + boost
+            end
+        end
+    end
+end
+
+mouse.KeyDown:Connect(function(a)
+    if a == "t" then
+        addesp()
+    elseif a == "u" then
+        raycast = not raycast
+    elseif a == "l" then
+        autoesp = not autoesp
+    elseif a == "j" then
+        if mouse.Target then
+            mouse.Target:Destroy()
+        end
+    elseif a == key then
+        switch = not switch
+        if not switch then
+            aimatpart = nil
+        end
+    elseif a == teambasedswitch then
+        TeamBased = not TeamBased
+    end
+end)
+
+t.InputBegan:Connect(function(af, ag)
+    if not ag and af.KeyCode == Enum.KeyCode.Space then
+        bunnyhop(lplr.Character)
+    end
+end)
+
+mouse.Button1Down:Connect(function()
+    if not aimatpart then
+        local maxangle = math.rad(lockangle)
+        for _, plr in ipairs(plrs:GetChildren()) do
+            if plr.Name ~= lplr.Name and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 1 then
+                local shouldCheck = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+                if shouldCheck then
+                    local an = checkfov(plr.Character.Head)
+                    if an < maxangle then
+                        maxangle = an
+                        aimatpart = plr.Character.Head
+                    end
+                end
+                plr.Character.Humanoid.Died:Connect(function()
+                    if aimatpart and aimatpart:IsDescendantOf(plr.Character) then
+                        aimatpart = nil
+                    end
+                end)
+            end
+        end
+    end
+end)
+
+mouse.Button1Up:Connect(function()
+    aimatpart = nil
+end)
+
+local RunService = game:GetService("RunService")
+RunService.RenderStepped:Connect(function()
+    local lplrChar = lplr.Character
+    if not lplrChar or not lplrChar:FindFirstChild("Humanoid") then
+        return
+    end
+    local humanoid = lplrChar.Humanoid
+    if aimatpart then
+        aimat(aimatpart)
+        if aimatpart:IsDescendantOf(lplrChar) then
+            aimatpart = nil
+        end
+    elseif raycast and not switch then
+        getaimbotplrs()
+        local maxangle = 999
+        for _, v in ipairs(plrsforaim) do
+            if not v:IsDescendantOf(lplrChar) then
+                local an = checkfov(v)
+                if an < maxangle and v ~= lplrChar.Head then
+                    maxangle = an
+                    aimatpart = v
+                    v.Parent.Humanoid.Died:Connect(function()
+                        aimatpart = nil
+                    end)
+                end
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait(espupdatetime) do
+        if autoesp then
+            pcall(addesp)
+        end
+    end
+end)
