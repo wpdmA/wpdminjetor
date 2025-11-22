@@ -79,7 +79,7 @@ local ad = Instance.new("TextBox")
 ad.Size = UDim2.new(0.4, 0, 0, 30)
 ad.Position = UDim2.new(0.55, 0, 0, 80)
 ad.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-ad.Text = tostring(100)  -- Default bunnyhop boost
+ad.Text = tostring(bunnyhopboost)
 ad.TextColor3 = Color3.new(1, 1, 1)
 ad.Font = Enum.Font.SourceSans
 ad.Parent = w
@@ -93,7 +93,7 @@ ad.FocusLost:Connect(function(aa)
         end
     end
 end)
-local bunnyhopboost = 100  -- Variable for bunnyhop boost
+local bunnyhopboost = 9999999  -- Variável global como no script anterior secundário
 local ae = function()
     z.Text = tostring(lockangle)
     ad.Text = tostring(bunnyhopboost)
@@ -102,7 +102,7 @@ t.InputBegan:Connect(function(af, ag)
     if not ag and af.KeyCode == Enum.KeyCode.RightShift then
         w.Visible = not w.Visible
         if w.Visible then
-            ae()  -- Atualiza os valores no GUI ao abrir
+            ae()  -- Carrega valores atuais das variáveis globais ao abrir GUI
         end
     end
 end)
@@ -189,10 +189,11 @@ local function getaimbotplrs()
     end
 end
 
--- Bunny hop aprimorado: velocidade aumentada a cada pulo (acumula boost), pulos instantâneos sem cooldown
+-- Bunny hop otimizado: velocidade aumentada a cada pulo (com limite para evitar lag excessivo), pulos instantâneos sem cooldown
 local isSpacePressed = false
 local jumpCount = 0
-local baseBoost = 50  -- Boost base para tornar perceptível com valores menores
+local lastJumpTime = 0
+local jumpCooldown = 0.02  -- Pequeno cooldown para reduzir lag (50ms entre pulos)
 t.InputBegan:Connect(function(af, ag)
     if not ag and af.KeyCode == Enum.KeyCode.Space then
         isSpacePressed = true
@@ -209,15 +210,16 @@ local function bunnyhop()
     if isSpacePressed and lplr.Character and lplr.Character:FindFirstChild("Humanoid") then
         local hrp = lplr.Character:FindFirstChild("HumanoidRootPart")
         local humanoid = lplr.Character.Humanoid
-        if hrp and humanoid then
+        if hrp and humanoid and tick() - lastJumpTime > jumpCooldown then
             local raycastResult = workspace:Raycast(hrp.Position, Vector3.new(0, -5, 0), RaycastParams.new())
             if raycastResult then  -- No chão
                 humanoid.Jump = true  -- Pulo instantâneo
-                jumpCount = jumpCount + 1
-                local accumulatedBoost = bunnyhopboost * jumpCount * 0.1  -- Aumenta velocidade a cada pulo
+                jumpCount = math.min(jumpCount + 1, 2)  -- Limita a 10 para evitar lag excessivo
+                local accumulatedBoost = bunnyhopboost * jumpCount * 0.02  -- Reduzido para 0.05 para menos lag
                 local lookVector = hrp.CFrame.LookVector
-                local boost = lookVector * (baseBoost + accumulatedBoost)
+                local boost = lookVector * (99 + accumulatedBoost)  -- Boost base reduzido
                 hrp.AssemblyLinearVelocity = hrp.AssemblyLinearVelocity + boost
+                lastJumpTime = tick()
             end
         end
     end
@@ -299,7 +301,7 @@ RunService.RenderStepped:Connect(function()
             end
         end
     end
-    -- Bunny hop loop para pulos instantâneos
+    -- Bunny hop otimizado
     bunnyhop()
 end)
 
