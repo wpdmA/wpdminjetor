@@ -107,15 +107,9 @@ end)
 -- Materiais que permitem penetração de tiros (baseado em Counter Blox; ajuste com testes)
 local penetrableMaterials = {
     Enum.Material.Wood,
-    Enum.Material.Glass,
     Enum.Material.Plastic,
-    Enum.Material.Fabric,
-    Enum.Material.Ice,
-    Enum.Material.LeafyGrass,
-    Enum.Material.Sand,
-    Enum.Material.Snow,
-    Enum.Material.Water,
-    Enum.Material.Plaster  -- Gesso é comum em mapas e permite tiros
+    Enum.Material.Clip,
+    Enum.Material.WoodPlanks
 }
 
 -- Função para verificar se o tiro passaria (simulando "se a bala mataria")
