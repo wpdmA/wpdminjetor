@@ -1,0 +1,363 @@
+local plrs = game:GetService("Players")
+local TeamBased = true
+local teambasedswitch = "o"
+local presskeytoaim = true
+local aimkey = "e"
+local raycast = false
+local espupdatetime = 5
+local autoesp = false
+local lockaim = true
+local j = 1
+local plrsforaim = {}
+local lplr = plrs.LocalPlayer
+local cam = workspace.CurrentCamera
+local mouse = lplr:GetMouse()
+local switch = false
+local key = "k"
+local aimatpart = nil
+local espforlder
+local robloxPlayerSpeed = 14
+local speedBoost = 4
+local boostDuration = 0.4
+local bunnyHopEnabled = false
+local t = game:GetService("UserInputService")
+local u = game:GetService("RunService")
+local v = Instance.new("ScreenGui")
+v.Name = "WPDM_GUI"
+v.ResetOnSpawn = false
+v.Parent = lplr:WaitForChild("PlayerGui")
+local w = Instance.new("Frame")
+w.Size = UDim2.new(0, 250, 0, 150)
+w.Position = UDim2.new(0.5, -125, 0.5, -75)
+w.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+w.BackgroundTransparency = 0.1
+w.BorderSizePixel = 2
+w.Visible = false
+w.Parent = v
+local x = Instance.new("TextLabel")
+x.Size = UDim2.new(1, 0, 0, 30)
+x.Position = UDim2.new(0, 0, 0, 0)
+x.BackgroundTransparency = 1
+x.Text = "WPDM"
+x.TextColor3 = Color3.new(1, 1, 1)
+x.TextScaled = true
+x.Font = Enum.Font.SourceSansBold
+x.Parent = w
+local y = Instance.new("TextLabel")
+y.Size = UDim2.new(0.5, 0, 0, 30)
+y.Position = UDim2.new(0, 10, 0, 40)
+y.BackgroundTransparency = 1
+y.Text = "Lock Angle:"
+y.TextColor3 = Color3.new(1, 1, 1)
+y.TextScaled = true
+y.Font = Enum.Font.SourceSans
+y.Parent = w
+local z = Instance.new("TextBox")
+z.Size = UDim2.new(0.4, 0, 0, 30)
+z.Position = UDim2.new(0.55, 0, 0, 40)
+z.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+z.Text = tostring(j)
+z.TextColor3 = Color3.new(1, 1, 1)
+z.Font = Enum.Font.SourceSans
+z.Parent = w
+z.FocusLost:Connect(function(aa)
+    if aa then
+        local ab = tonumber(z.Text)
+        if ab then
+            j = ab
+        else
+            z.Text = tostring(j)
+        end
+    end
+end)
+local ac = Instance.new("TextLabel")
+ac.Size = UDim2.new(0.5, 0, 0, 30)
+ac.Position = UDim2.new(0, 10, 0, 80)
+ac.BackgroundTransparency = 1
+ac.Text = "Bunny Hop:"
+ac.TextColor3 = Color3.new(1, 1, 1)
+ac.TextScaled = true
+ac.Font = Enum.Font.SourceSans
+ac.Parent = w
+local ad = Instance.new("TextButton")
+ad.Size = UDim2.new(0.4, 0, 0, 30)
+ad.Position = UDim2.new(0.55, 0, 0, 80)
+ad.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+ad.Text = bunnyHopEnabled and "ON" or "OFF"
+ad.TextColor3 = Color3.new(1, 1, 1)
+ad.Font = Enum.Font.SourceSans
+ad.Parent = w
+ad.MouseButton1Click:Connect(function()
+    bunnyHopEnabled = not bunnyHopEnabled
+    ad.Text = bunnyHopEnabled and "ON" or "OFF"
+end)
+local ae = function()
+    z.Text = tostring(j)
+    ad.Text = bunnyHopEnabled and "ON" or "OFF"
+end
+t.InputBegan:Connect(function(af, ag)
+    if not ag and af.KeyCode == Enum.KeyCode.RightShift then
+        w.Visible = not w.Visible
+        if w.Visible then
+            ae()
+        end
+    end
+end)
+
+-- Materiais que permitem penetração de tiros (baseado em Counter Blox; ajuste com testes)
+local penetrableMaterials = {
+    Enum.Material.Wood,
+    Enum.Material.Glass,
+    Enum.Material.Plastic,
+    Enum.Material.Fabric,
+    Enum.Material.Ice,
+    Enum.Material.LeafyGrass,
+    Enum.Material.Sand,
+    Enum.Material.Snow,
+    Enum.Material.Water,
+    Enum.Material.Plaster  -- Gesso é comum em mapas e permite tiros
+}
+
+-- Função para verificar se o tiro passaria (simulando "se a bala mataria")
+local function isTargetShootable(targetHead)
+    local lplrChar = lplr.Character
+    if not lplrChar then return false end
+    
+    local ign = {}
+    for _, v in ipairs(lplrChar:GetChildren()) do
+        if v:IsA("BasePart") then
+            table.insert(ign, v)
+        end
+    end
+    
+    local cf = CFrame.new(cam.CFrame.Position, targetHead.Position)
+    local r = Ray.new(cf.Position, cf.LookVector * 10000)
+    local obj = workspace:FindPartOnRayWithIgnoreList(r, ign)
+    
+    -- Se não há objeto bloqueando ou o objeto é do próprio alvo, é atingível
+    if not obj or obj:IsDescendantOf(targetHead.Parent) then
+        return true
+    end
+    
+    -- Se o objeto bloqueador tem material penetrável, simula que o tiro passa
+    if table.find(penetrableMaterials, obj.Material) then
+        return true
+    end
+    
+    -- Caso contrário, não é atingível
+    return false
+end
+
+local function addesp()
+    if not espforlder then
+        espforlder = Instance.new("Folder")
+        espforlder.Parent = cam
+    end
+    for _, v in ipairs(espforlder:GetChildren()) do
+        v:Destroy()
+    end
+    for _, plr in ipairs(plrs:GetChildren()) do
+        if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name then
+            local shouldAdd = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+            if shouldAdd then
+                local bill = Instance.new("BillboardGui", espforlder)
+                bill.Name = plr.Name
+                bill.AlwaysOnTop = true
+                bill.Size = UDim2.new(1, 0, 1, 0)
+                bill.Adornee = plr.Character.Head
+                local Frame = Instance.new('Frame', bill)
+                Frame.Active = true
+                Frame.BackgroundTransparency = 0
+                Frame.BorderSizePixel = 0
+                Frame.AnchorPoint = Vector2.new(.5, .5)
+                Frame.Position = UDim2.new(.5, 0, .5, 0)
+                Frame.Size = UDim2.new(1, 0, 1, 0)
+                Frame.Rotation = 0
+                
+                -- Verificar se o alvo é "atingível" (se a bala passaria)
+                local isShootable = isTargetShootable(plr.Character.Head)
+                
+                -- Verde se atingível (tiro passaria), vermelho se não
+                if isShootable then
+                    Frame.BackgroundColor3 = Color3.new(0, 1, 0)  -- Verde
+                else
+                    Frame.BackgroundColor3 = Color3.new(1, 0, 0)  -- Vermelho
+                end
+                
+                plr.Character.Humanoid.Died:Connect(function()
+                    bill:Destroy()
+                end)
+            end
+        end
+    end
+end
+
+local function getfovxyz(p0, p1, deg)
+    local x1, y1, z1 = p0:ToOrientation()
+    local cf = CFrame.new(p0.Position, p1.Position)
+    local x2, y2, z2 = cf:ToOrientation()
+    if deg then
+        return Vector3.new(math.deg(x1 - x2), math.deg(y1 - y2), math.deg(z1 - z2))
+    else
+        return Vector3.new(x1 - x2, y1 - y2, z1 - z2)
+    end
+end
+
+local function checkfov(part)
+    local fov = getfovxyz(cam.CFrame, part.CFrame)
+    return math.abs(fov.X) + math.abs(fov.Y)
+end
+
+local function aimat(part)
+    cam.CFrame = CFrame.new(cam.CFrame.Position, part.Position)
+end
+
+local function getaimbotplrs()
+    plrsforaim = {}
+    local camPos = cam.CFrame.Position
+    local lplrChar = lplr.Character
+    if not lplrChar then
+        return
+    end
+    local ign = {}
+    for _, v in ipairs(lplrChar:GetChildren()) do
+        if v:IsA("BasePart") then
+            table.insert(ign, v)
+        end
+    end
+    for _, plr in ipairs(plrs:GetChildren()) do
+        if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name and plr.Character:FindFirstChild("Head") then
+            local shouldCheck = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+            if shouldCheck then
+                local cf = CFrame.new(camPos, plr.Character.Head.Position)
+                local r = Ray.new(cf.Position, cf.LookVector * 10000)
+                local obj = workspace:FindPartOnRayWithIgnoreList(r, ign)
+                if obj and obj:IsDescendantOf(plr.Character) and not obj:IsDescendantOf(lplrChar) then
+                    table.insert(plrsforaim, obj)
+                end
+            end
+        end
+    end
+end
+
+local function onStateChanged(oldState, newState)
+    if bunnyHopEnabled and newState == Enum.HumanoidStateType.Jumping then
+        local humanoid = lplr.Character and lplr.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = robloxPlayerSpeed + speedBoost
+            task.delay(boostDuration, function()
+                if humanoid and humanoid.Health > 0 then
+                    humanoid.WalkSpeed = robloxPlayerSpeed
+                end
+            end)
+        end
+    end
+end
+
+lplr.CharacterAdded:Connect(function(char)
+    local humanoid = char:WaitForChild("Humanoid")
+    humanoid.StateChanged:Connect(onStateChanged)
+end)
+if lplr.Character then
+    local humanoid = lplr.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.StateChanged:Connect(onStateChanged)
+    end
+end
+
+-- Variável para controlar se está mirando (segurando botão esquerdo)
+local isAiming = false
+
+mouse.KeyDown:Connect(function(a)
+    if a == "t" then
+        addesp()
+    elseif a == "u" then
+        raycast = not raycast
+    elseif a == "l" then
+        autoesp = not autoesp
+    elseif a == "j" then
+        if mouse.Target then
+            mouse.Target:Destroy()
+        end
+    elseif a == key then
+        switch = not switch
+        if not switch then
+            aimatpart = nil
+        end
+    elseif a == teambasedswitch then
+        TeamBased = not TeamBased
+    end
+end)
+
+mouse.Button1Down:Connect(function()
+    isAiming = true
+end)
+
+mouse.Button1Up:Connect(function()
+    isAiming = false
+    aimatpart = nil
+end)
+
+local RunService = game:GetService("RunService")
+RunService.RenderStepped:Connect(function()
+    local lplrChar = lplr.Character
+    if not lplrChar or not lplrChar:FindFirstChild("Humanoid") then
+        return
+    end
+    local humanoid = lplrChar.Humanoid
+    
+    -- Se estiver mirando (segurando botão esquerdo), encontrar e atualizar o alvo continuamente
+    if isAiming then
+        local maxangle = math.rad(j)
+        local bestTarget = nil
+        for _, plr in ipairs(plrs:GetChildren()) do
+            if plr.Name ~= lplr.Name and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 1 then
+                local shouldCheck = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+                if shouldCheck then
+                    local an = checkfov(plr.Character.Head)
+                    if an < maxangle then
+                        maxangle = an
+                        bestTarget = plr.Character.Head
+                    end
+                end
+                plr.Character.Humanoid.Died:Connect(function()
+                    if aimatpart and aimatpart:IsDescendantOf(plr.Character) then
+                        aimatpart = nil
+                    end
+                end)
+            end
+        end
+        aimatpart = bestTarget
+    end
+    
+    -- Mirar no alvo se existir
+    if aimatpart then
+        aimat(aimatpart)
+        if aimatpart:IsDescendantOf(lplrChar) then
+            aimatpart = nil
+        end
+    elseif raycast and not switch then
+        getaimbotplrs()
+        local maxangle = 999
+        for _, v in ipairs(plrsforaim) do
+            if not v:IsDescendantOf(lplrChar) then
+                local an = checkfov(v)
+                if an < maxangle and v ~= lplrChar.Head then
+                    maxangle = an
+                    aimatpart = v
+                    v.Parent.Humanoid.Died:Connect(function()
+                        aimatpart = nil
+                    end)
+                end
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait(espupdatetime) do
+        if autoesp then
+            pcall(addesp)
+        end
+    end
+end)
