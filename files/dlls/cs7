@@ -106,8 +106,8 @@ end)
 
 -- Lista de nomes de objetos que permitem penetração de tiros (baseado nos logs fornecidos; ajuste se necessário)
 local penetrableNames = {
-    "Part",  -- Aparece várias vezes com Wood
-    "CLIP"   -- Aparece várias vezes com Plastic
+    "Part",  -- Aparece com Wood
+    "CLIP"   -- Aparece com Plastic
 }
 
 -- Função para verificar se o tiro passaria (simulando "se a bala mataria")
@@ -135,42 +135,55 @@ local function isTargetShootable(targetHead)
     return false
 end
 
+-- Tabela para armazenar os Billboards e Frames por jogador
+local espElements = {}
+
 local function addesp()
     if not espforlder then
         espforlder = Instance.new("Folder")
         espforlder.Parent = cam
     end
-    for _, v in ipairs(espforlder:GetChildren()) do
-        v:Destroy()
-    end
     for _, plr in ipairs(plrs:GetChildren()) do
         if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name then
             local shouldAdd = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
             if shouldAdd then
-                local bill = Instance.new("BillboardGui", espforlder)
-                bill.Name = plr.Name
-                bill.AlwaysOnTop = true
-                bill.Size = UDim2.new(1, 0, 1, 0)
-                bill.Adornee = plr.Character.Head
-                local Frame = Instance.new('Frame', bill)
-                Frame.Active = true
-                Frame.BackgroundTransparency = 0
-                Frame.BorderSizePixel = 0
-                Frame.AnchorPoint = Vector2.new(.5, .5)
-                Frame.Position = UDim2.new(.5, 0, .5, 0)
-                Frame.Size = UDim2.new(1, 0, 1, 0)
-                Frame.Rotation = 0
-                -- Verificar se o alvo é "atingível" (se a bala passaria)
-                local isShootable = isTargetShootable(plr.Character.Head)
-                -- Verde se atingível (tiro passaria), vermelho se não
-                if isShootable then
-                    Frame.BackgroundColor3 = Color3.new(0, 1, 0) -- Verde
-                else
-                    Frame.BackgroundColor3 = Color3.new(1, 0, 0) -- Vermelho
+                if not espElements[plr.Name] then
+                    local bill = Instance.new("BillboardGui", espforlder)
+                    bill.Name = plr.Name
+                    bill.AlwaysOnTop = true
+                    bill.Size = UDim2.new(1, 0, 1, 0)
+                    bill.Adornee = plr.Character.Head
+                    local Frame = Instance.new('Frame', bill)
+                    Frame.Active = true
+                    Frame.BackgroundTransparency = 0
+                    Frame.BorderSizePixel = 0
+                    Frame.AnchorPoint = Vector2.new(.5, .5)
+                    Frame.Position = UDim2.new(.5, 0, .5, 0)
+                    Frame.Size = UDim2.new(1, 0, 1, 0)
+                    Frame.Rotation = 0
+                    espElements[plr.Name] = {bill = bill, frame = Frame}
+                    plr.Character.Humanoid.Died:Connect(function()
+                        if espElements[plr.Name] then
+                            espElements[plr.Name].bill:Destroy()
+                            espElements[plr.Name] = nil
+                        end
+                    end)
                 end
-                plr.Character.Humanoid.Died:Connect(function()
-                    bill:Destroy()
-                end)
+            end
+        end
+    end
+end
+
+-- Função para atualizar as cores do ESP em tempo real
+local function updateESPColors()
+    for plrName, elements in pairs(espElements) do
+        local plr = plrs:FindFirstChild(plrName)
+        if plr and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 then
+            local isShootable = isTargetShootable(plr.Character.Head)
+            if isShootable then
+                elements.frame.BackgroundColor3 = Color3.new(0, 1, 0) -- Verde
+            else
+                elements.frame.BackgroundColor3 = Color3.new(1, 0, 0) -- Vermelho
             end
         end
     end
@@ -286,6 +299,8 @@ RunService.RenderStepped:Connect(function()
     local lplrChar = lplr.Character
     if not lplrChar or not lplrChar:FindFirstChild("Humanoid") then return end
     local humanoid = lplrChar.Humanoid
+    -- Atualizar cores do ESP em tempo real
+    updateESPColors()
     -- Se estiver mirando (segurando botão esquerdo), encontrar e atualizar o alvo continuamente
     if isAiming then
         local maxangle = math.rad(j)
