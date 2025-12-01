@@ -104,13 +104,12 @@ t.InputBegan:Connect(function(af, ag)
     end
 end)
 
--- Lista de nomes de objetos que permitem penetração de tiros (baseado nos logs fornecidos; ajuste se necessário)
-local penetrableNames = {
-    "Part",  -- Aparece com Wood
-    "CLIP"   -- Aparece com Plastic
+-- Materiais que permitem penetração de tiros (ajustado para apenas Wood, conforme sugestão)
+local penetrableMaterials = {
+    Enum.Material.Wood
 }
 
--- Função para verificar se o tiro passaria (simulando "se a bala mataria")
+-- Função para verificar se o tiro passaria (simulando penetração múltipla)
 local function isTargetShootable(targetHead)
     local lplrChar = lplr.Character
     if not lplrChar then return false end
@@ -120,19 +119,33 @@ local function isTargetShootable(targetHead)
             table.insert(ign, v)
         end
     end
-    local cf = CFrame.new(cam.CFrame.Position, targetHead.Position)
-    local r = Ray.new(cf.Position, cf.LookVector * 10000)
-    local obj = workspace:FindPartOnRayWithIgnoreList(r, ign)
-    -- Se não há objeto bloqueando ou o objeto é do próprio alvo, é atingível
-    if not obj or obj:IsDescendantOf(targetHead.Parent) then
-        return true
+    local startPos = cam.CFrame.Position
+    local direction = (targetHead.Position - startPos).Unit
+    local distance = (targetHead.Position - startPos).Magnitude
+    local currentPos = startPos
+    local remainingDistance = distance
+    while remainingDistance > 0 do
+        local r = Ray.new(currentPos, direction * remainingDistance)
+        local obj, hitPos = workspace:FindPartOnRayWithIgnoreList(r, ign)
+        if not obj then
+            -- Nenhum objeto restante, atingível
+            return true
+        end
+        if obj:IsDescendantOf(targetHead.Parent) then
+            -- Atingiu o alvo, atingível
+            return true
+        end
+        if not table.find(penetrableMaterials, obj.Material) then
+            -- Objeto não penetrável, não atingível
+            return false
+        end
+        -- Penetrável, continue a partir do ponto de impacto
+        currentPos = hitPos + direction * 0.01  -- Pequeno offset para evitar loop
+        remainingDistance = remainingDistance - (hitPos - currentPos).Magnitude
+        table.insert(ign, obj)  -- Ignorar este objeto nas próximas verificações
     end
-    -- Se o objeto bloqueador tem nome na lista de penetráveis, simula que o tiro passa
-    if table.find(penetrableNames, obj.Name) then
-        return true
-    end
-    -- Caso contrário, não é atingível
-    return false
+    -- Se chegou aqui, atingível (embora improvável)
+    return true
 end
 
 -- Tabela para armazenar os Billboards e Frames por jogador
