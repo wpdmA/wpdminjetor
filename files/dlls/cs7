@@ -104,7 +104,7 @@ t.InputBegan:Connect(function(af, ag)
     end
 end)
 
--- Materiais que permitem penetração de tiros (baseado em Counter Blox; ajuste com testes)
+-- Materiais que permitem penetração de tiros
 local penetrableMaterials = {
     Enum.Material.Wood,
     Enum.Material.Plastic,
