@@ -108,7 +108,6 @@ end)
 local penetrableMaterials = {
     Enum.Material.Wood,
     Enum.Material.Plastic,
-    Enum.Material.Clip,
     Enum.Material.WoodPlanks
 }
 
