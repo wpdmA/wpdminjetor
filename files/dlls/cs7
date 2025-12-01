@@ -104,39 +104,33 @@ t.InputBegan:Connect(function(af, ag)
     end
 end)
 
--- Materiais que permitem penetração de tiros
-local penetrableMaterials = {
-    Enum.Material.Wood,
-    Enum.Material.Plastic,
-    Enum.Material.WoodPlanks
+-- Lista de nomes de objetos que permitem penetração de tiros (baseado nos logs fornecidos; ajuste se necessário)
+local penetrableNames = {
+    "Part",  -- Aparece várias vezes com Wood
+    "CLIP"   -- Aparece várias vezes com Plastic
 }
 
 -- Função para verificar se o tiro passaria (simulando "se a bala mataria")
 local function isTargetShootable(targetHead)
     local lplrChar = lplr.Character
     if not lplrChar then return false end
-    
     local ign = {}
     for _, v in ipairs(lplrChar:GetChildren()) do
         if v:IsA("BasePart") then
             table.insert(ign, v)
         end
     end
-    
     local cf = CFrame.new(cam.CFrame.Position, targetHead.Position)
     local r = Ray.new(cf.Position, cf.LookVector * 10000)
     local obj = workspace:FindPartOnRayWithIgnoreList(r, ign)
-    
     -- Se não há objeto bloqueando ou o objeto é do próprio alvo, é atingível
     if not obj or obj:IsDescendantOf(targetHead.Parent) then
         return true
     end
-    
-    -- Se o objeto bloqueador tem material penetrável, simula que o tiro passa
-    if table.find(penetrableMaterials, obj.Material) then
+    -- Se o objeto bloqueador tem nome na lista de penetráveis, simula que o tiro passa
+    if table.find(penetrableNames, obj.Name) then
         return true
     end
-    
     -- Caso contrário, não é atingível
     return false
 end
@@ -166,17 +160,14 @@ local function addesp()
                 Frame.Position = UDim2.new(.5, 0, .5, 0)
                 Frame.Size = UDim2.new(1, 0, 1, 0)
                 Frame.Rotation = 0
-                
                 -- Verificar se o alvo é "atingível" (se a bala passaria)
                 local isShootable = isTargetShootable(plr.Character.Head)
-                
                 -- Verde se atingível (tiro passaria), vermelho se não
                 if isShootable then
-                    Frame.BackgroundColor3 = Color3.new(0, 1, 0)  -- Verde
+                    Frame.BackgroundColor3 = Color3.new(0, 1, 0) -- Verde
                 else
-                    Frame.BackgroundColor3 = Color3.new(1, 0, 0)  -- Vermelho
+                    Frame.BackgroundColor3 = Color3.new(1, 0, 0) -- Vermelho
                 end
-                
                 plr.Character.Humanoid.Died:Connect(function()
                     bill:Destroy()
                 end)
@@ -209,9 +200,7 @@ local function getaimbotplrs()
     plrsforaim = {}
     local camPos = cam.CFrame.Position
     local lplrChar = lplr.Character
-    if not lplrChar then
-        return
-    end
+    if not lplrChar then return end
     local ign = {}
     for _, v in ipairs(lplrChar:GetChildren()) do
         if v:IsA("BasePart") then
@@ -251,6 +240,7 @@ lplr.CharacterAdded:Connect(function(char)
     local humanoid = char:WaitForChild("Humanoid")
     humanoid.StateChanged:Connect(onStateChanged)
 end)
+
 if lplr.Character then
     local humanoid = lplr.Character:FindFirstChild("Humanoid")
     if humanoid then
@@ -294,11 +284,8 @@ end)
 local RunService = game:GetService("RunService")
 RunService.RenderStepped:Connect(function()
     local lplrChar = lplr.Character
-    if not lplrChar or not lplrChar:FindFirstChild("Humanoid") then
-        return
-    end
+    if not lplrChar or not lplrChar:FindFirstChild("Humanoid") then return end
     local humanoid = lplrChar.Humanoid
-    
     -- Se estiver mirando (segurando botão esquerdo), encontrar e atualizar o alvo continuamente
     if isAiming then
         local maxangle = math.rad(j)
@@ -322,7 +309,6 @@ RunService.RenderStepped:Connect(function()
         end
         aimatpart = bestTarget
     end
-    
     -- Mirar no alvo se existir
     if aimatpart then
         aimat(aimatpart)
