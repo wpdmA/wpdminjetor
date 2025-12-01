@@ -104,12 +104,19 @@ t.InputBegan:Connect(function(af, ag)
     end
 end)
 
--- Materiais que permitem penetração de tiros (ajustado para apenas Wood, conforme sugestão)
+-- Materiais que permitem penetração de tiros
 local penetrableMaterials = {
+    Enum.Material.Plastic,
     Enum.Material.Wood
 }
 
--- Função para verificar se o tiro passaria (simulando penetração múltipla)
+-- Nomes de objetos que permitem penetração de tiros
+local penetrableNames = {
+    "CLIP",
+    "Part"
+}
+
+-- Função para verificar se o tiro passaria (simulando penetração múltipla, verificando material E nome)
 local function isTargetShootable(targetHead)
     local lplrChar = lplr.Character
     if not lplrChar then return false end
@@ -135,7 +142,9 @@ local function isTargetShootable(targetHead)
             -- Atingiu o alvo, atingível
             return true
         end
-        if not table.find(penetrableMaterials, obj.Material) then
+        -- Verificar se o objeto é penetrável por material OU nome
+        local isPenetrable = table.find(penetrableMaterials, obj.Material) or table.find(penetrableNames, obj.Name)
+        if not isPenetrable then
             -- Objeto não penetrável, não atingível
             return false
         end
