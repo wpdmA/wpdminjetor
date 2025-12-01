@@ -1,19 +1,25 @@
-local mouse = game.Players.LocalPlayer:GetMouse()
-mouse.Button1Down:Connect(function()
-    if mouse.Target then
-        local objName = mouse.Target.Name
-        local objMaterial = mouse.Target.Material
-        -- Tenta copiar para o clipboard; se falhar, imprime
-        local success, err = pcall(function()
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+Mouse.Button1Down:Connect(function()
+    local target = Mouse.Target
+    if target then
+        local objName = target.Name
+        local objMaterial = target.Material
+
+        local ok = pcall(function()
             setclipboard(objName)
         end)
-        if success then
-            print("Nome copiado para clipboard:", objName)
+
+        if ok then
+            print("Nome copiado:", objName)
         else
-            print("Erro no clipboard, nome impresso:", objName)
+            print("Clipboard falhou. Nome:", objName)
         end
-        print("Material do objeto:", objMaterial)
+
+        print("Material:", objMaterial)
     else
-        print("Nenhum alvo mirado.")
+        print("Nenhum alvo.")
     end
 end)
