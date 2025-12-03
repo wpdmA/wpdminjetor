@@ -107,9 +107,7 @@ end)
 
 -- Materiais que permitem penetração de tiros (ajustado para apenas Wood, conforme sugestão)
 local penetrableMaterials = {
-Enum.Material.Plastic,
-Enum.Material.Wood,
-Enum.Material.Metal
+Enum.Material.Wood
 }
 
 
