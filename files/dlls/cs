@@ -20,7 +20,7 @@ local robloxPlayerSpeed = 14
 local speedBoost = 4
 local boostDuration = 0.4
 local bunnyHopEnabled = false
-local aimAll = false  -- Nova variável para ativar aimbot em todos
+local aimAll = false  -- Nova variável para ativar aimbot em todosw
 local t = game:GetService("UserInputService")
 local u = game:GetService("RunService")
 local v = Instance.new("ScreenGui")
@@ -252,25 +252,11 @@ end
 
 local function getaimbotplrs()
     plrsforaim = {}
-    local camPos = cam.CFrame.Position
-    local lplrChar = lplr.Character
-    if not lplrChar then return end
-    local ign = {}
-    for _, v in ipairs(lplrChar:GetChildren()) do
-        if v:IsA("BasePart") then
-            table.insert(ign, v)
-        end
-    end
     for _, plr in ipairs(plrs:GetChildren()) do
         if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name and plr.Character:FindFirstChild("Head") then
-            local shouldCheck = aimAll or (not TeamBased or (TeamBased and plr.Team ~= lplr.Team))  -- Atualizado para considerar aimAll
+            local shouldCheck = aimAll or (not TeamBased or (TeamBased and plr.Team ~= lplr.Team))
             if shouldCheck then
-                local cf = CFrame.new(camPos, plr.Character.Head.Position)
-                local r = Ray.new(cf.Position, cf.LookVector * 10000)
-                local obj = workspace:FindPartOnRayWithIgnoreList(r, ign)
-                if obj and obj:IsDescendantOf(plr.Character) and not obj:IsDescendantOf(lplrChar) then
-                    table.insert(plrsforaim, obj)
-                end
+                table.insert(plrsforaim, plr.Character.Head)
             end
         end
     end
@@ -302,7 +288,7 @@ if lplr.Character then
     end
 end
 
--- Variável para controlar se está mirando (segurando botão esquerdo ou tecla aimkey)
+-- Variável para controlar se está mirando (segurando botão esquerdo ou E)
 local isAiming = false
 
 mouse.KeyDown:Connect(function(a)
@@ -323,24 +309,26 @@ mouse.KeyDown:Connect(function(a)
         end
     elseif a == teambasedswitch then
         TeamBased = not TeamBased
-    elseif presskeytoaim and a == aimkey then
-        isAiming = not isAiming
-        if not isAiming then
-            aimatpart = nil
-        end
+    elseif a == aimkey then  -- E agora também ativa aiming
+        isAiming = true
     end
 end)
 
-if not presskeytoaim then
-    mouse.Button1Down:Connect(function()
-        isAiming = true
-    end)
-
-    mouse.Button1Up:Connect(function()
+mouse.KeyUp:Connect(function(a)
+    if a == aimkey then
         isAiming = false
         aimatpart = nil
-    end)
-end
+    end
+end)
+
+mouse.Button1Down:Connect(function()
+    isAiming = true
+end)
+
+mouse.Button1Up:Connect(function()
+    isAiming = false
+    aimatpart = nil
+end)
 
 local RunService = game:GetService("RunService")
 RunService.RenderStepped:Connect(function()
@@ -349,18 +337,17 @@ RunService.RenderStepped:Connect(function()
     local humanoid = lplrChar.Humanoid
     -- Atualizar cores do ESP em tempo real
     updateESPColors()
-    -- Se estiver mirando (segurando botão esquerdo ou tecla aimkey), encontrar e atualizar o alvo continuamente
+    -- Se estiver mirando (segurando botão esquerdo ou E), encontrar e atualizar o alvo continuamente
     if isAiming then
         local maxangle = math.rad(j)
         local bestTarget = nil
-        local bestAngle = maxangle
         for _, plr in ipairs(plrs:GetChildren()) do
-            if plr.Name ~= lplr.Name and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 then
+            if plr.Name ~= lplr.Name and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 1 then
                 local shouldCheck = aimAll or (not TeamBased or (TeamBased and plr.Team ~= lplr.Team))  -- Atualizado para considerar aimAll
                 if shouldCheck then
                     local an = checkfov(plr.Character.Head)
-                    if an < bestAngle then
-                        bestAngle = an
+                    if an < maxangle then
+                        maxangle = an
                         bestTarget = plr.Character.Head
                     end
                 end
