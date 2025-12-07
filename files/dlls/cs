@@ -20,7 +20,6 @@ local robloxPlayerSpeed = 14
 local speedBoost = 4
 local boostDuration = 0.4
 local bunnyHopEnabled = false
-local aimAll = false  -- Nova variável para ativar aimbot em todosw
 local t = game:GetService("UserInputService")
 local u = game:GetService("RunService")
 local v = Instance.new("ScreenGui")
@@ -28,8 +27,8 @@ v.Name = "WPDM_GUI"
 v.ResetOnSpawn = false
 v.Parent = lplr:WaitForChild("PlayerGui")
 local w = Instance.new("Frame")
-w.Size = UDim2.new(0, 250, 0, 180)  -- Aumentei o tamanho para acomodar o novo botão
-w.Position = UDim2.new(0.5, -125, 0.5, -90)
+w.Size = UDim2.new(0, 250, 0, 150)
+w.Position = UDim2.new(0.5, -125, 0.5, -75)
 w.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 w.BackgroundTransparency = 0.1
 w.BorderSizePixel = 2
@@ -62,14 +61,14 @@ z.TextColor3 = Color3.new(1, 1, 1)
 z.Font = Enum.Font.SourceSans
 z.Parent = w
 z.FocusLost:Connect(function(aa)
-    if aa then
-        local ab = tonumber(z.Text)
-        if ab then
-            j = ab
-        else
-            z.Text = tostring(j)
-        end
-    end
+if aa then
+local ab = tonumber(z.Text)
+if ab then
+j = ab
+else
+z.Text = tostring(j)
+end
+end
 end)
 local ac = Instance.new("TextLabel")
 ac.Size = UDim2.new(0.5, 0, 0, 30)
@@ -89,305 +88,304 @@ ad.TextColor3 = Color3.new(1, 1, 1)
 ad.Font = Enum.Font.SourceSans
 ad.Parent = w
 ad.MouseButton1Click:Connect(function()
-    bunnyHopEnabled = not bunnyHopEnabled
-    ad.Text = bunnyHopEnabled and "ON" or "OFF"
-end)
--- Novo TextLabel para "Aim All:"
-local ag = Instance.new("TextLabel")
-ag.Size = UDim2.new(0.5, 0, 0, 30)
-ag.Position = UDim2.new(0, 10, 0, 120)
-ag.BackgroundTransparency = 1
-ag.Text = "Aim All:"
-ag.TextColor3 = Color3.new(1, 1, 1)
-ag.TextScaled = true
-ag.Font = Enum.Font.SourceSans
-ag.Parent = w
--- Novo TextButton para alternar aimAll
-local ah = Instance.new("TextButton")
-ah.Size = UDim2.new(0.4, 0, 0, 30)
-ah.Position = UDim2.new(0.55, 0, 0, 120)
-ah.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-ah.Text = aimAll and "ON" or "OFF"
-ah.TextColor3 = Color3.new(1, 1, 1)
-ah.Font = Enum.Font.SourceSans
-ah.Parent = w
-ah.MouseButton1Click:Connect(function()
-    aimAll = not aimAll
-    ah.Text = aimAll and "ON" or "OFF"
+bunnyHopEnabled = not bunnyHopEnabled
+ad.Text = bunnyHopEnabled and "ON" or "OFF"
 end)
 local ae = function()
-    z.Text = tostring(j)
-    ad.Text = bunnyHopEnabled and "ON" or "OFF"
-    ah.Text = aimAll and "ON" or "OFF"
+z.Text = tostring(j)
+ad.Text = bunnyHopEnabled and "ON" or "OFF"
 end
 t.InputBegan:Connect(function(af, ag)
-    if not ag and af.KeyCode == Enum.KeyCode.RightShift then
-        w.Visible = not w.Visible
-        if w.Visible then
-            ae()
-        end
-    end
+if not ag and af.KeyCode == Enum.KeyCode.RightShift then
+w.Visible = not w.Visible
+if w.Visible then
+ae()
+end
+end
 end)
+
 
 -- Materiais que permitem penetração de tiros (ajustado para apenas Wood, conforme sugestão)
 local penetrableMaterials = {
-    Enum.Material.Wood
+Enum.Material.Wood
 }
+
 
 -- Função para verificar se o tiro passaria (simulando penetração múltipla)
 local function isTargetShootable(targetHead)
-    local lplrChar = lplr.Character
-    if not lplrChar then return false end
-    local ign = {}
-    for _, v in ipairs(lplrChar:GetChildren()) do
-        if v:IsA("BasePart") then
-            table.insert(ign, v)
-        end
-    end
-    local startPos = cam.CFrame.Position
-    local direction = (targetHead.Position - startPos).Unit
-    local distance = (targetHead.Position - startPos).Magnitude
-    local currentPos = startPos
-    local remainingDistance = distance
-    while remainingDistance > 0 do
-        local r = Ray.new(currentPos, direction * remainingDistance)
-        local obj, hitPos = workspace:FindPartOnRayWithIgnoreList(r, ign)
-        if not obj then
-            -- Nenhum objeto restante, atingível
-            return true
-        end
-        if obj:IsDescendantOf(targetHead.Parent) then
-            -- Atingiu o alvo, atingível
-            return true
-        end
-        if not table.find(penetrableMaterials, obj.Material) then
-            -- Objeto não penetrável, não atingível
-            return false
-        end
-        -- Penetrável, continue a partir do ponto de impacto
-        currentPos = hitPos + direction * 0.01  -- Pequeno offset para evitar loop
-        remainingDistance = remainingDistance - (hitPos - currentPos).Magnitude
-        table.insert(ign, obj)  -- Ignorar este objeto nas próximas verificações
-    end
-    -- Se chegou aqui, atingível (embora improvável)
-    return true
+local lplrChar = lplr.Character
+if not lplrChar then return false end
+local ign = {}
+for _, v in ipairs(lplrChar:GetChildren()) do
+if v:IsA("BasePart") then
+table.insert(ign, v)
 end
+end
+local startPos = cam.CFrame.Position
+local direction = (targetHead.Position - startPos).Unit
+local distance = (targetHead.Position - startPos).Magnitude
+local currentPos = startPos
+local remainingDistance = distance
+while remainingDistance > 0 do
+local r = Ray.new(currentPos, direction * remainingDistance)
+local obj, hitPos = workspace:FindPartOnRayWithIgnoreList(r, ign)
+if not obj then
+-- Nenhum objeto restante, atingível
+return true
+end
+if obj:IsDescendantOf(targetHead.Parent) then
+-- Atingiu o alvo, atingível
+return true
+end
+if not table.find(penetrableMaterials, obj.Material) then
+-- Objeto não penetrável, não atingível
+return false
+end
+-- Penetrável, continue a partir do ponto de impacto
+currentPos = hitPos + direction * 0.01  -- Pequeno offset para evitar loop
+remainingDistance = remainingDistance - (hitPos - currentPos).Magnitude
+table.insert(ign, obj)  -- Ignorar este objeto nas próximas verificações
+end
+-- Se chegou aqui, atingível (embora improvável)
+return true
+end
+
 
 -- Tabela para armazenar os Billboards e Frames por jogador
 local espElements = {}
 
+
 local function addesp()
-    if not espforlder then
-        espforlder = Instance.new("Folder")
-        espforlder.Parent = cam
-    end
-    -- Limpar elementos existentes para recriar
-    for plrName, elements in pairs(espElements) do
-        elements.bill:Destroy()
-        espElements[plrName] = nil
-    end
-    for _, plr in ipairs(plrs:GetChildren()) do
-        if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name then
-            local shouldAdd = aimAll or (not TeamBased or (TeamBased and plr.Team ~= lplr.Team))  -- Atualizado para considerar aimAll
-            if shouldAdd then
-                local bill = Instance.new("BillboardGui", espforlder)
-                bill.Name = plr.Name
-                bill.AlwaysOnTop = true
-                bill.Size = UDim2.new(1, 0, 1, 0)
-                bill.Adornee = plr.Character.Head
-                local Frame = Instance.new('Frame', bill)
-                Frame.Active = true
-                Frame.BackgroundTransparency = 0
-                Frame.BorderSizePixel = 0
-                Frame.AnchorPoint = Vector2.new(.5, .5)
-                Frame.Position = UDim2.new(.5, 0, .5, 0)
-                Frame.Size = UDim2.new(1, 0, 1, 0)
-                Frame.Rotation = 0
-                espElements[plr.Name] = {bill = bill, frame = Frame}
-                plr.Character.Humanoid.Died:Connect(function()
-                    if espElements[plr.Name] then
-                        espElements[plr.Name].bill:Destroy()
-                        espElements[plr.Name] = nil
-                    end
-                end)
-            end
-        end
-    end
+if not espforlder then
+espforlder = Instance.new("Folder")
+espforlder.Parent = cam
 end
+-- Limpar elementos existentes para recriar
+for plrName, elements in pairs(espElements) do
+elements.bill:Destroy()
+espElements[plrName] = nil
+end
+for _, plr in ipairs(plrs:GetChildren()) do
+if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name then
+local shouldAdd = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+if shouldAdd then
+local bill = Instance.new("BillboardGui", espforlder)
+bill.Name = plr.Name
+bill.AlwaysOnTop = true
+bill.Size = UDim2.new(1, 0, 1, 0)
+bill.Adornee = plr.Character.Head
+local Frame = Instance.new('Frame', bill)
+Frame.Active = true
+Frame.BackgroundTransparency = 0
+Frame.BorderSizePixel = 0
+Frame.AnchorPoint = Vector2.new(.5, .5)
+Frame.Position = UDim2.new(.5, 0, .5, 0)
+Frame.Size = UDim2.new(1, 0, 1, 0)
+Frame.Rotation = 0
+espElements[plr.Name] = {bill = bill, frame = Frame}
+plr.Character.Humanoid.Died:Connect(function()
+if espElements[plr.Name] then
+espElements[plr.Name].bill:Destroy()
+espElements[plr.Name] = nil
+end
+end)
+end
+end
+end
+end
+
 
 -- Função para atualizar as cores do ESP em tempo real
 local function updateESPColors()
-    for plrName, elements in pairs(espElements) do
-        local plr = plrs:FindFirstChild(plrName)
-        if plr and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 then
-            local isShootable = isTargetShootable(plr.Character.Head)
-            if isShootable then
-                elements.frame.BackgroundColor3 = Color3.new(0, 1, 0) -- Verde
-            else
-                elements.frame.BackgroundColor3 = Color3.new(1, 0, 0) -- Vermelho
-            end
-        end
-    end
+for plrName, elements in pairs(espElements) do
+local plr = plrs:FindFirstChild(plrName)
+if plr and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 then
+local isShootable = isTargetShootable(plr.Character.Head)
+if isShootable then
+elements.frame.BackgroundColor3 = Color3.new(0, 1, 0) -- Verde
+else
+elements.frame.BackgroundColor3 = Color3.new(1, 0, 0) -- Vermelho
 end
+end
+end
+end
+
 
 local function getfovxyz(p0, p1, deg)
-    local x1, y1, z1 = p0:ToOrientation()
-    local cf = CFrame.new(p0.Position, p1.Position)
-    local x2, y2, z2 = cf:ToOrientation()
-    if deg then
-        return Vector3.new(math.deg(x1 - x2), math.deg(y1 - y2), math.deg(z1 - z2))
-    else
-        return Vector3.new(x1 - x2, y1 - y2, z1 - z2)
-    end
+local x1, y1, z1 = p0:ToOrientation()
+local cf = CFrame.new(p0.Position, p1.Position)
+local x2, y2, z2 = cf:ToOrientation()
+if deg then
+return Vector3.new(math.deg(x1 - x2), math.deg(y1 - y2), math.deg(z1 - z2))
+else
+return Vector3.new(x1 - x2, y1 - y2, z1 - z2)
 end
+end
+
 
 local function checkfov(part)
-    local fov = getfovxyz(cam.CFrame, part.CFrame)
-    return math.abs(fov.X) + math.abs(fov.Y)
+local fov = getfovxyz(cam.CFrame, part.CFrame)
+return math.abs(fov.X) + math.abs(fov.Y)
 end
+
 
 local function aimat(part)
-    cam.CFrame = CFrame.new(cam.CFrame.Position, part.Position)
+cam.CFrame = CFrame.new(cam.CFrame.Position, part.Position)
 end
+
 
 local function getaimbotplrs()
-    plrsforaim = {}
-    for _, plr in ipairs(plrs:GetChildren()) do
-        if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name and plr.Character:FindFirstChild("Head") then
-            local shouldCheck = aimAll or (not TeamBased or (TeamBased and plr.Team ~= lplr.Team))
-            if shouldCheck then
-                table.insert(plrsforaim, plr.Character.Head)
-            end
-        end
-    end
+plrsforaim = {}
+local camPos = cam.CFrame.Position
+local lplrChar = lplr.Character
+if not lplrChar then return end
+local ign = {}
+for _, v in ipairs(lplrChar:GetChildren()) do
+if v:IsA("BasePart") then
+table.insert(ign, v)
 end
+end
+for _, plr in ipairs(plrs:GetChildren()) do
+if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name and plr.Character:FindFirstChild("Head") then
+local shouldCheck = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+if shouldCheck then
+local cf = CFrame.new(camPos, plr.Character.Head.Position)
+local r = Ray.new(cf.Position, cf.LookVector * 10000)
+local obj = workspace:FindPartOnRayWithIgnoreList(r, ign)
+if obj and obj:IsDescendantOf(plr.Character) and not obj:IsDescendantOf(lplrChar) then
+table.insert(plrsforaim, obj)
+end
+end
+end
+end
+end
+
 
 local function onStateChanged(oldState, newState)
-    if bunnyHopEnabled and newState == Enum.HumanoidStateType.Jumping then
-        local humanoid = lplr.Character and lplr.Character:FindFirstChild("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = robloxPlayerSpeed + speedBoost
-            task.delay(boostDuration, function()
-                if humanoid and humanoid.Health > 0 then
-                    humanoid.WalkSpeed = robloxPlayerSpeed
-                end
-            end)
-        end
-    end
+if bunnyHopEnabled and newState == Enum.HumanoidStateType.Jumping then
+local humanoid = lplr.Character and lplr.Character:FindFirstChild("Humanoid")
+if humanoid then
+humanoid.WalkSpeed = robloxPlayerSpeed + speedBoost
+task.delay(boostDuration, function()
+if humanoid and humanoid.Health > 0 then
+humanoid.WalkSpeed = robloxPlayerSpeed
 end
+end)
+end
+end
+end
+
 
 lplr.CharacterAdded:Connect(function(char)
-    local humanoid = char:WaitForChild("Humanoid")
-    humanoid.StateChanged:Connect(onStateChanged)
+local humanoid = char:WaitForChild("Humanoid")
+humanoid.StateChanged:Connect(onStateChanged)
 end)
+
 
 if lplr.Character then
-    local humanoid = lplr.Character:FindFirstChild("Humanoid")
-    if humanoid then
-        humanoid.StateChanged:Connect(onStateChanged)
-    end
+local humanoid = lplr.Character:FindFirstChild("Humanoid")
+if humanoid then
+humanoid.StateChanged:Connect(onStateChanged)
+end
 end
 
--- Variável para controlar se está mirando (segurando botão esquerdo ou E)
+
+-- Variável para controlar se está mirando (segurando botão esquerdo)
 local isAiming = false
 
+
 mouse.KeyDown:Connect(function(a)
-    if a == "t" then
-        addesp()  -- Agora recria o ESP sempre que pressionar T
-    elseif a == "u" then
-        raycast = not raycast
-    elseif a == "l" then
-        autoesp = not autoesp
-    elseif a == "j" then
-        if mouse.Target then
-            mouse.Target:Destroy()
-        end
-    elseif a == key then
-        switch = not switch
-        if not switch then
-            aimatpart = nil
-        end
-    elseif a == teambasedswitch then
-        TeamBased = not TeamBased
-    elseif a == aimkey then  -- E agora também ativa aiming
-        isAiming = true
-    end
+if a == "t" then
+addesp()  -- Agora recria o ESP sempre que pressionar T
+elseif a == "u" then
+raycast = not raycast
+elseif a == "l" then
+autoesp = not autoesp
+elseif a == "j" then
+if mouse.Target then
+mouse.Target:Destroy()
+end
+elseif a == key then
+switch = not switch
+if not switch then
+aimatpart = nil
+end
+elseif a == teambasedswitch then
+TeamBased = not TeamBased
+end
 end)
 
-mouse.KeyUp:Connect(function(a)
-    if a == aimkey then
-        isAiming = false
-        aimatpart = nil
-    end
-end)
 
 mouse.Button1Down:Connect(function()
-    isAiming = true
+isAiming = true
 end)
 
+
 mouse.Button1Up:Connect(function()
-    isAiming = false
-    aimatpart = nil
+isAiming = false
+aimatpart = nil
 end)
+
 
 local RunService = game:GetService("RunService")
 RunService.RenderStepped:Connect(function()
-    local lplrChar = lplr.Character
-    if not lplrChar or not lplrChar:FindFirstChild("Humanoid") then return end
-    local humanoid = lplrChar.Humanoid
-    -- Atualizar cores do ESP em tempo real
-    updateESPColors()
-    -- Se estiver mirando (segurando botão esquerdo ou E), encontrar e atualizar o alvo continuamente
-    if isAiming then
-        local maxangle = math.rad(j)
-        local bestTarget = nil
-        for _, plr in ipairs(plrs:GetChildren()) do
-            if plr.Name ~= lplr.Name and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 1 then
-                local shouldCheck = aimAll or (not TeamBased or (TeamBased and plr.Team ~= lplr.Team))  -- Atualizado para considerar aimAll
-                if shouldCheck then
-                    local an = checkfov(plr.Character.Head)
-                    if an < maxangle then
-                        maxangle = an
-                        bestTarget = plr.Character.Head
-                    end
-                end
-                plr.Character.Humanoid.Died:Connect(function()
-                    if aimatpart and aimatpart:IsDescendantOf(plr.Character) then
-                        aimatpart = nil
-                    end
-                end)
-            end
-        end
-        aimatpart = bestTarget
-    end
-    -- Mirar no alvo se existir
-    if aimatpart then
-        aimat(aimatpart)
-        if aimatpart:IsDescendantOf(lplrChar) then
-            aimatpart = nil
-        end
-    elseif raycast and not switch then
-        getaimbotplrs()
-        local maxangle = 999
-        for _, v in ipairs(plrsforaim) do
-            if not v:IsDescendantOf(lplrChar) then
-                local an = checkfov(v)
-                if an < maxangle and v ~= lplrChar.Head then
-                    maxangle = an
-                    aimatpart = v
-                    v.Parent.Humanoid.Died:Connect(function()
-                        aimatpart = nil
-                    end)
-                end
-            end
-        end
-    end
+local lplrChar = lplr.Character
+if not lplrChar or not lplrChar:FindFirstChild("Humanoid") then return end
+local humanoid = lplrChar.Humanoid
+-- Atualizar cores do ESP em tempo real
+updateESPColors()
+-- Se estiver mirando (segurando botão esquerdo), encontrar e atualizar o alvo continuamente
+if isAiming then
+local maxangle = math.rad(j)
+local bestTarget = nil
+for _, plr in ipairs(plrs:GetChildren()) do
+if plr.Name ~= lplr.Name and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 1 then
+local shouldCheck = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+if shouldCheck then
+local an = checkfov(plr.Character.Head)
+if an < maxangle then
+maxangle = an
+bestTarget = plr.Character.Head
+end
+end
+plr.Character.Humanoid.Died:Connect(function()
+if aimatpart and aimatpart:IsDescendantOf(plr.Character) then
+aimatpart = nil
+end
+end)
+end
+end
+aimatpart = bestTarget
+end
+-- Mirar no alvo se existir
+if aimatpart then
+aimat(aimatpart)
+if aimatpart:IsDescendantOf(lplrChar) then
+aimatpart = nil
+end
+elseif raycast and not switch then
+getaimbotplrs()
+local maxangle = 999
+for _, v in ipairs(plrsforaim) do
+if not v:IsDescendantOf(lplrChar) then
+local an = checkfov(v)
+if an < maxangle and v ~= lplrChar.Head then
+maxangle = an
+aimatpart = v
+v.Parent.Humanoid.Died:Connect(function()
+aimatpart = nil
+end)
+end
+end
+end
+end
 end)
 
+
 task.spawn(function()
-    while task.wait(espupdatetime) do
-        if autoesp then
-            pcall(addesp)
-        end
-    end
+while task.wait(espupdatetime) do
+if autoesp then
+pcall(addesp)
+end
+end
 end)
