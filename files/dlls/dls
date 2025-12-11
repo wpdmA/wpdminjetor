@@ -108,6 +108,9 @@ t.InputBegan:Connect(function(af, ag)
         else
             t.MouseIconEnabled = false
         end
+    elseif not ag and af.KeyCode == Enum.KeyCode.RightAlt then
+        -- Função para resetar o HUD/GUI do jogo recarregando o personagem
+        lplr:LoadCharacter()
     end
 end)
 
@@ -257,6 +260,10 @@ mouse.KeyDown:Connect(function(a)
         raycast = not raycast
     elseif a == "l" then
         autoesp = not autoesp
+    elseif a == "j" then
+        if mouse.Target then
+            mouse.Target:Destroy()
+        end
     elseif a == key then
         switch = not switch
         if not switch then
