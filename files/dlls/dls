@@ -8,6 +8,7 @@ local espupdatetime = 5
 local autoesp = false
 local lockaim = true
 local j = 1
+local smoothSpeed = 0.1
 local plrsforaim = {}
 local lplr = plrs.LocalPlayer
 local cam = workspace.CurrentCamera
@@ -16,10 +17,6 @@ local switch = false
 local key = "e"
 local aimatpart = nil
 local espforlder
-local robloxPlayerSpeed = 14
-local speedBoost = 4
-local boostDuration = 0.4
-local bunnyHopEnabled = false
 local t = game:GetService("UserInputService")
 local u = game:GetService("RunService")
 local v = Instance.new("ScreenGui")
@@ -70,49 +67,54 @@ z.FocusLost:Connect(function(aa)
         end
     end
 end)
-local ac = Instance.new("TextLabel")
-ac.Size = UDim2.new(0.5, 0, 0, 30)
-ac.Position = UDim2.new(0, 10, 0, 80)
-ac.BackgroundTransparency = 1
-ac.Text = "Bunny Hop:"
-ac.TextColor3 = Color3.new(1, 1, 1)
-ac.TextScaled = true
-ac.Font = Enum.Font.SourceSans
-ac.Parent = w
-local ad = Instance.new("TextButton")
-ad.Size = UDim2.new(0.4, 0, 0, 30)
-ad.Position = UDim2.new(0.55, 0, 0, 80)
-ad.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-ad.Text = bunnyHopEnabled and "ON" or "OFF"
-ad.TextColor3 = Color3.new(1, 1, 1)
-ad.Font = Enum.Font.SourceSans
-ad.Parent = w
-ad.MouseButton1Click:Connect(function()
-    bunnyHopEnabled = not bunnyHopEnabled
-    ad.Text = bunnyHopEnabled and "ON" or "OFF"
+local smoothLabel = Instance.new("TextLabel")
+smoothLabel.Size = UDim2.new(0.5, 0, 0, 30)
+smoothLabel.Position = UDim2.new(0, 10, 0, 80)
+smoothLabel.BackgroundTransparency = 1
+smoothLabel.Text = "Smooth Speed:"
+smoothLabel.TextColor3 = Color3.new(1, 1, 1)
+smoothLabel.TextScaled = true
+smoothLabel.Font = Enum.Font.SourceSans
+smoothLabel.Parent = w
+local smoothBox = Instance.new("TextBox")
+smoothBox.Size = UDim2.new(0.4, 0, 0, 30)
+smoothBox.Position = UDim2.new(0.55, 0, 0, 80)
+smoothBox.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+smoothBox.Text = tostring(smoothSpeed)
+smoothBox.TextColor3 = Color3.new(1, 1, 1)
+smoothBox.Font = Enum.Font.SourceSans
+smoothBox.Parent = w
+smoothBox.FocusLost:Connect(function(aa)
+    if aa then
+        local ab = tonumber(smoothBox.Text)
+        if ab and ab >= 0 and ab <= 1 then
+            smoothSpeed = ab
+        else
+            smoothBox.Text = tostring(smoothSpeed)
+        end
+    end
 end)
 local ae = function()
     z.Text = tostring(j)
-    ad.Text = bunnyHopEnabled and "ON" or "OFF"
+    smoothBox.Text = tostring(smoothSpeed)
 end
 t.InputBegan:Connect(function(af, ag)
     if not ag and af.KeyCode == Enum.KeyCode.RightShift then
         w.Visible = not w.Visible
         if w.Visible then
             ae()
-            -- Liberar o mouse quando o GUI estiver aberto
             t.MouseBehavior = Enum.MouseBehavior.Default
+            t.MouseIconEnabled = true
         else
+            t.MouseIconEnabled = false
         end
     end
 end)
 
--- Materiais que permitem penetração de tiros (ajustado para apenas Wood, conforme sugestão)
 local penetrableMaterials = {
     Enum.Material.Wood
 }
 
--- Função para verificar se o tiro passaria (simulando penetração múltipla)
 local function isTargetShootable(targetHead)
     local lplrChar = lplr.Character
     if not lplrChar then return false end
@@ -131,27 +133,21 @@ local function isTargetShootable(targetHead)
         local r = Ray.new(currentPos, direction * remainingDistance)
         local obj, hitPos = workspace:FindPartOnRayWithIgnoreList(r, ign)
         if not obj then
-            -- Nenhum objeto restante, atingível
             return true
         end
         if obj:IsDescendantOf(targetHead.Parent) then
-            -- Atingiu o alvo, atingível
             return true
         end
         if not table.find(penetrableMaterials, obj.Material) then
-            -- Objeto não penetrável, não atingível
             return false
         end
-        -- Penetrável, continue a partir do ponto de impacto
-        currentPos = hitPos + direction * 0.01  -- Pequeno offset para evitar loop
+        currentPos = hitPos + direction * 0.01
         remainingDistance = remainingDistance - (hitPos - currentPos).Magnitude
-        table.insert(ign, obj)  -- Ignorar este objeto nas próximas verificações
+        table.insert(ign, obj)
     end
-    -- Se chegou aqui, atingível (embora improvável)
     return true
 end
 
--- Tabela para armazenar os Billboards e Frames por jogador
 local espElements = {}
 
 local function addesp()
@@ -159,7 +155,6 @@ local function addesp()
         espforlder = Instance.new("Folder")
         espforlder.Parent = cam
     end
-    -- Limpar elementos existentes para recriar
     for plrName, elements in pairs(espElements) do
         elements.bill:Destroy()
         espElements[plrName] = nil
@@ -193,16 +188,15 @@ local function addesp()
     end
 end
 
--- Função para atualizar as cores do ESP em tempo real
 local function updateESPColors()
     for plrName, elements in pairs(espElements) do
         local plr = plrs:FindFirstChild(plrName)
         if plr and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 then
             local isShootable = isTargetShootable(plr.Character.Head)
             if isShootable then
-                elements.frame.BackgroundColor3 = Color3.new(0, 1, 0) -- Verde
+                elements.frame.BackgroundColor3 = Color3.new(0, 1, 0)
             else
-                elements.frame.BackgroundColor3 = Color3.new(1, 0, 0) -- Vermelho
+                elements.frame.BackgroundColor3 = Color3.new(1, 0, 0)
             end
         end
     end
@@ -225,7 +219,7 @@ local function checkfov(part)
 end
 
 local function aimat(part)
-    cam.CFrame = CFrame.new(cam.CFrame.Position, part.Position)
+    cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, part.Position), smoothSpeed)
 end
 
 local function getaimbotplrs()
@@ -254,46 +248,15 @@ local function getaimbotplrs()
     end
 end
 
-local function onStateChanged(oldState, newState)
-    if bunnyHopEnabled and newState == Enum.HumanoidStateType.Jumping then
-        local humanoid = lplr.Character and lplr.Character:FindFirstChild("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = robloxPlayerSpeed + speedBoost
-            task.delay(boostDuration, function()
-                if humanoid and humanoid.Health > 0 then
-                    humanoid.WalkSpeed = robloxPlayerSpeed
-                end
-            end)
-        end
-    end
-end
-
-lplr.CharacterAdded:Connect(function(char)
-    local humanoid = char:WaitForChild("Humanoid")
-    humanoid.StateChanged:Connect(onStateChanged)
-end)
-
-if lplr.Character then
-    local humanoid = lplr.Character:FindFirstChild("Humanoid")
-    if humanoid then
-        humanoid.StateChanged:Connect(onStateChanged)
-    end
-end
-
--- Variável para controlar se está mirando (segurando botão esquerdo ou aimbot ativado)
 local isAiming = false
 
 mouse.KeyDown:Connect(function(a)
     if a == "t" then
-        addesp()  -- Agora recria o ESP sempre que pressionar T
+        addesp()
     elseif a == "u" then
         raycast = not raycast
     elseif a == "l" then
         autoesp = not autoesp
-    elseif a == "j" then
-        if mouse.Target then
-            mouse.Target:Destroy()
-        end
     elseif a == key then
         switch = not switch
         if not switch then
@@ -318,9 +281,7 @@ RunService.RenderStepped:Connect(function()
     local lplrChar = lplr.Character
     if not lplrChar or not lplrChar:FindFirstChild("Humanoid") then return end
     local humanoid = lplrChar.Humanoid
-    -- Atualizar cores do ESP em tempo real
     updateESPColors()
-    -- Se estiver mirando (segurando botão esquerdo ou aimbot ativado), encontrar e atualizar o alvo continuamente
     if isAiming or switch then
         local maxangle = math.rad(j)
         local bestTarget = nil
@@ -346,7 +307,6 @@ RunService.RenderStepped:Connect(function()
         end
         aimatpart = bestTarget
     end
-    -- Mirar no alvo se existir
     if aimatpart then
         aimat(aimatpart)
         if aimatpart:IsDescendantOf(lplrChar) then
