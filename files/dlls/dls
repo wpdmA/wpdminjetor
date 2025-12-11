@@ -103,8 +103,6 @@ t.InputBegan:Connect(function(af, ag)
             -- Liberar o mouse quando o GUI estiver aberto
             t.MouseBehavior = Enum.MouseBehavior.Default
         else
-            -- Voltar o mouse ao comportamento padrão do jogo quando fechar (assumindo que o jogo prende o mouse)
-            t.MouseBehavior = Enum.MouseBehavior.LockCenter
         end
     end
 end)
