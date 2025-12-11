@@ -2,7 +2,7 @@ local plrs = game:GetService("Players")
 local TeamBased = true
 local teambasedswitch = "o"
 local presskeytoaim = true
-local aimkey = "e"
+local aimkey = "k"
 local raycast = false
 local espupdatetime = 5
 local autoesp = false
@@ -14,7 +14,7 @@ local lplr = plrs.LocalPlayer
 local cam = workspace.CurrentCamera
 local mouse = lplr:GetMouse()
 local switch = false
-local key = "e"
+local key = "k"
 local aimatpart = nil
 local espforlder
 local t = game:GetService("UserInputService")
