@@ -20,7 +20,7 @@ local espforlder
 local t = game:GetService("UserInputService")
 local u = game:GetService("RunService")
 local v = Instance.new("ScreenGui")
-v.Name = "WPDM_GUI"
+v.Name = "أريد أن يملأ فراغي الملايين."
 v.ResetOnSpawn = false
 v.Parent = lplr:WaitForChild("PlayerGui")
 local w = Instance.new("Frame")
