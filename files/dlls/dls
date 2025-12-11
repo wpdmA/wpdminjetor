@@ -13,7 +13,7 @@ local lplr = plrs.LocalPlayer
 local cam = workspace.CurrentCamera
 local mouse = lplr:GetMouse()
 local switch = false
-local key = "k"
+local key = "e"
 local aimatpart = nil
 local espforlder
 local robloxPlayerSpeed = 14
