@@ -17,10 +17,15 @@ local switch = false
 local key = "k"
 local aimatpart = nil
 local espforlder
+local robloxPlayerSpeed = 14
+local speedBoost = 4
+local boostDuration = 0.4
+local bunnyHopEnabled = false
+local espEnabled = false
 local t = game:GetService("UserInputService")
 local u = game:GetService("RunService")
 local v = Instance.new("ScreenGui")
-v.Name = "أريد أن يملأ فراغي الملايين.7"
+v.Name = "7أريد أن يملأ فراغي الملايين."
 v.ResetOnSpawn = false
 v.Parent = lplr:WaitForChild("PlayerGui")
 local w = Instance.new("Frame")
@@ -94,9 +99,31 @@ smoothBox.FocusLost:Connect(function(aa)
         end
     end
 end)
+local bunnyLabel = Instance.new("TextLabel")
+bunnyLabel.Size = UDim2.new(0.5, 0, 0, 30)
+bunnyLabel.Position = UDim2.new(0, 10, 0, 120)
+bunnyLabel.BackgroundTransparency = 1
+bunnyLabel.Text = "Bunny Hop:"
+bunnyLabel.TextColor3 = Color3.new(1, 1, 1)
+bunnyLabel.TextScaled = true
+bunnyLabel.Font = Enum.Font.SourceSans
+bunnyLabel.Parent = w
+local bunnyButton = Instance.new("TextButton")
+bunnyButton.Size = UDim2.new(0.4, 0, 0, 30)
+bunnyButton.Position = UDim2.new(0.55, 0, 0, 120)
+bunnyButton.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+bunnyButton.Text = bunnyHopEnabled and "ON" or "OFF"
+bunnyButton.TextColor3 = Color3.new(1, 1, 1)
+bunnyButton.Font = Enum.Font.SourceSans
+bunnyButton.Parent = w
+bunnyButton.MouseButton1Click:Connect(function()
+    bunnyHopEnabled = not bunnyHopEnabled
+    bunnyButton.Text = bunnyHopEnabled and "ON" or "OFF"
+end)
 local ae = function()
     z.Text = tostring(j)
     smoothBox.Text = tostring(smoothSpeed)
+    bunnyButton.Text = bunnyHopEnabled and "ON" or "OFF"
 end
 t.InputBegan:Connect(function(af, ag)
     if not ag and af.KeyCode == Enum.KeyCode.RightShift then
@@ -144,116 +171,53 @@ end
 
 local espElements = {}
 
-local function getBoundingBox(character)
-    local minX, minY, minZ = math.huge, math.huge, math.huge
-    local maxX, maxY, maxZ = -math.huge, -math.huge, -math.huge
-    for _, part in ipairs(character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            local cf = part.CFrame
-            local size = part.Size
-            local corners = {
-                cf * CFrame.new(-size.X/2, -size.Y/2, -size.Z/2),
-                cf * CFrame.new(size.X/2, -size.Y/2, -size.Z/2),
-                cf * CFrame.new(-size.X/2, size.Y/2, -size.Z/2),
-                cf * CFrame.new(size.X/2, size.Y/2, -size.Z/2),
-                cf * CFrame.new(-size.X/2, -size.Y/2, size.Z/2),
-                cf * CFrame.new(size.X/2, -size.Y/2, size.Z/2),
-                cf * CFrame.new(-size.X/2, size.Y/2, size.Z/2),
-                cf * CFrame.new(size.X/2, size.Y/2, size.Z/2)
-            }
-            for _, corner in ipairs(corners) do
-                local pos = corner.Position
-                minX = math.min(minX, pos.X)
-                minY = math.min(minY, pos.Y)
-                minZ = math.min(minZ, pos.Z)
-                maxX = math.max(maxX, pos.X)
-                maxY = math.max(maxY, pos.Y)
-                maxZ = math.max(maxZ, pos.Z)
-            end
-        end
-    end
-    return Vector3.new(minX, minY, minZ), Vector3.new(maxX, maxY, maxZ)
-end
-
-local function worldToViewportPoint(worldPoint)
-    local screenPoint, onScreen = cam:WorldToViewportPoint(worldPoint)
-    return Vector2.new(screenPoint.X, screenPoint.Y), onScreen
-end
-
 local function addesp()
+    if not espforlder then
+        espforlder = Instance.new("Folder")
+        espforlder.Parent = cam
+    end
     for plrName, elements in pairs(espElements) do
-        for _, drawing in ipairs(elements) do
-            drawing:Remove()
-        end
+        elements.bill:Destroy()
         espElements[plrName] = nil
     end
     for _, plr in ipairs(plrs:GetChildren()) do
         if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name then
-            local min, max = getBoundingBox(plr.Character)
-            local topLeft, topLeftOnScreen = worldToViewportPoint(Vector3.new(min.X, max.Y, min.Z))
-            local topRight, topRightOnScreen = worldToViewportPoint(Vector3.new(max.X, max.Y, min.Z))
-            local bottomLeft, bottomLeftOnScreen = worldToViewportPoint(Vector3.new(min.X, min.Y, min.Z))
-            local bottomRight, bottomRightOnScreen = worldToViewportPoint(Vector3.new(max.X, min.Y, min.Z))
-            if topLeftOnScreen and topRightOnScreen and bottomLeftOnScreen and bottomRightOnScreen then
-                local lines = {}
-                local top = Drawing.new("Line")
-                top.From = topLeft
-                top.To = topRight
-                top.Color = Color3.new(1, 1, 1)
-                top.Thickness = 1
-                top.Transparency = 1
-                top.Visible = true
-                table.insert(lines, top)
-                
-                local right = Drawing.new("Line")
-                right.From = topRight
-                right.To = bottomRight
-                right.Color = Color3.new(1, 1, 1)
-                right.Thickness = 1
-                right.Transparency = 1
-                right.Visible = true
-                table.insert(lines, right)
-                
-                local bottom = Drawing.new("Line")
-                bottom.From = bottomRight
-                bottom.To = bottomLeft
-                bottom.Color = Color3.new(1, 1, 1)
-                bottom.Thickness = 1
-                bottom.Transparency = 1
-                bottom.Visible = true
-                table.insert(lines, bottom)
-                
-                local left = Drawing.new("Line")
-                left.From = bottomLeft
-                left.To = topLeft
-                left.Color = Color3.new(1, 1, 1)
-                left.Thickness = 1
-                left.Transparency = 1
-                left.Visible = true
-                table.insert(lines, left)
-                
-                espElements[plr.Name] = lines
-            end
-            plr.Character.Humanoid.Died:Connect(function()
-                if espElements[plr.Name] then
-                    for _, drawing in ipairs(espElements[plr.Name]) do
-                        drawing:Remove()
+            local shouldAdd = not TeamBased or (TeamBased and plr.Team ~= lplr.Team)
+            if shouldAdd then
+                local bill = Instance.new("BillboardGui", espforlder)
+                bill.Name = plr.Name
+                bill.AlwaysOnTop = true
+                bill.Size = UDim2.new(1, 0, 1, 0)
+                bill.Adornee = plr.Character.Head
+                local Frame = Instance.new('Frame', bill)
+                Frame.Active = true
+                Frame.BackgroundTransparency = 0
+                Frame.BorderSizePixel = 0
+                Frame.AnchorPoint = Vector2.new(.5, .5)
+                Frame.Position = UDim2.new(.5, 0, .5, 0)
+                Frame.Size = UDim2.new(1, 0, 1, 0)
+                Frame.Rotation = 0
+                espElements[plr.Name] = {bill = bill, frame = Frame}
+                plr.Character.Humanoid.Died:Connect(function()
+                    if espElements[plr.Name] then
+                        espElements[plr.Name].bill:Destroy()
+                        espElements[plr.Name] = nil
                     end
-                    espElements[plr.Name] = nil
-                end
-            end)
+                end)
+            end
         end
     end
 end
 
 local function updateESPColors()
-    for plrName, lines in pairs(espElements) do
+    for plrName, elements in pairs(espElements) do
         local plr = plrs:FindFirstChild(plrName)
         if plr and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 then
             local isShootable = isTargetShootable(plr.Character.Head)
-            local color = isShootable and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
-            for _, line in ipairs(lines) do
-                line.Color = color
+            if isShootable then
+                elements.frame.BackgroundColor3 = Color3.new(0, 1, 0)
+            else
+                elements.frame.BackgroundColor3 = Color3.new(1, 0, 0)
             end
         end
     end
@@ -305,11 +269,45 @@ local function getaimbotplrs()
     end
 end
 
+local function onStateChanged(oldState, newState)
+    if bunnyHopEnabled and newState == Enum.HumanoidStateType.Jumping then
+        local humanoid = lplr.Character and lplr.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = robloxPlayerSpeed + speedBoost
+            task.delay(boostDuration, function()
+                if humanoid and humanoid.Health > 0 then
+                    humanoid.WalkSpeed = robloxPlayerSpeed
+                end
+            end)
+        end
+    end
+end
+
+lplr.CharacterAdded:Connect(function(char)
+    local humanoid = char:WaitForChild("Humanoid")
+    humanoid.StateChanged:Connect(onStateChanged)
+end)
+
+if lplr.Character then
+    local humanoid = lplr.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.StateChanged:Connect(onStateChanged)
+    end
+end
+
 local isAiming = false
 
 mouse.KeyDown:Connect(function(a)
     if a == "t" then
-        addesp()  -- Agora recria o ESP sempre que pressionar T
+        espEnabled = not espEnabled
+        if espEnabled then
+            addesp()
+        else
+            for plrName, elements in pairs(espElements) do
+                elements.bill:Destroy()
+                espElements[plrName] = nil
+            end
+        end
     elseif a == "u" then
         raycast = not raycast
     elseif a == "l" then
@@ -342,8 +340,10 @@ RunService.RenderStepped:Connect(function()
     local lplrChar = lplr.Character
     if not lplrChar or not lplrChar:FindFirstChild("Humanoid") then return end
     local humanoid = lplrChar.Humanoid
-    updateESPColors()
-    if isAiming or switch then
+    if espEnabled then
+        updateESPColors()
+    end
+    if isAiming then
         local maxangle = math.rad(j)
         local bestTarget = nil
         local bestDistance = math.huge
