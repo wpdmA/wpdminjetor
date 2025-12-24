@@ -101,13 +101,7 @@ end
 t.InputBegan:Connect(function(af, ag)
     if not ag and af.KeyCode == Enum.KeyCode.RightShift then
         w.Visible = not w.Visible
-        if w.Visible then
-            ae()
-            t.MouseBehavior = Enum.MouseBehavior.Default
-            t.MouseIconEnabled = true
-        else
-            t.MouseIconEnabled = false
-        end
+        ae()
     end
 end)
 
@@ -252,7 +246,7 @@ local isAiming = false
 
 mouse.KeyDown:Connect(function(a)
     if a == "t" then
-        addesp()
+        addesp()  -- Agora recria o ESP sempre que pressionar T
     elseif a == "u" then
         raycast = not raycast
     elseif a == "l" then
@@ -260,29 +254,6 @@ mouse.KeyDown:Connect(function(a)
     elseif a == "j" then
         if mouse.Target then
             mouse.Target:Destroy()
-        end
-    elseif a == "p" then
-        -- Função para carregar os módulos de GUI/HUD listados
-        local modules = {
-            "MainGui",
-            "Client FeedsUI",  -- Nota: nomes com espaços podem precisar de ajuste se o nome real for diferente
-            "ArenaUI",
-            "LobbyLeaderboardUI",
-            "OverheadGui",
-            "VoteKickClient",
-            "SpectateGui",
-            "MatchMakingGui",
-            "HudGui",
-            "MatchGui"
-        }
-        local replicatedStorage = game:GetService("ReplicatedStorage")
-        for _, modName in ipairs(modules) do
-            local mod = replicatedStorage:FindFirstChild(modName)
-            if mod and mod:IsA("ModuleScript") then
-                pcall(function()
-                    require(mod)
-                end)
-            end
         end
     elseif a == key then
         switch = not switch
